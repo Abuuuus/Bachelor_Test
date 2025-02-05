@@ -88,7 +88,7 @@ namespace Bachelor_Test
         {
             try
             {
-                ushort startAddress = ushort.Parse(txtHoldingAdress.Text);
+                ushort startAddress = ushort.Parse(txtAdress.Text);
                 string addressValue = txtHoldingValue.Text;
                 ushort[] values = addressValue.Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries)
                                               .Select(ushort.Parse).ToArray();
@@ -98,7 +98,7 @@ namespace Bachelor_Test
                 {
                     for (int i = 0; i < values.Length; i++)
                     {
-                        tcpSlave.DataStore.HoldingRegisters[startAddress + i] = values[i];
+                        tcpSlave.DataStore.HoldingRegisters[startAdress + i] = values[i];
                     }
                 }
                 else
@@ -111,7 +111,7 @@ namespace Bachelor_Test
                 {
                     for (int i = 0; i < values.Length; i++)
                     {
-                        tcpSlave.DataStore.HoldingRegisters[startAddress + i] = values[i];
+                        tcpSlave.DataStore.HoldingRegisters[startAdress + i] = values[i];
                     }
                 }
                 else
@@ -119,7 +119,7 @@ namespace Bachelor_Test
                     MessageBox.Show("The RTU slave network or DataStore is not initialized correctly.", "Initialization Error");
                 }
 
-                MessageBox.Show($"Holding register starting at {startAddress} set to: {string.Join(",", values)}");
+                MessageBox.Show($"Holding register starting at {startAdress} set to: {string.Join(",", values)}");
             }
             catch (FormatException)
             {
