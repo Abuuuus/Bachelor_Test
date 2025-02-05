@@ -56,15 +56,16 @@
             comboBoxSerialLine = new ComboBox();
             lbEngUnit = new Label();
             txtEngUnit = new TextBox();
+            txtHoldingAdress = new TextBox();
+            lbHoldingAdress = new Label();
             SuspendLayout();
             // 
             // btnStartServer
             // 
             btnStartServer.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            btnStartServer.Location = new Point(847, 13);
-            btnStartServer.Margin = new Padding(3, 4, 3, 4);
+            btnStartServer.Location = new Point(741, 10);
             btnStartServer.Name = "btnStartServer";
-            btnStartServer.Size = new Size(137, 69);
+            btnStartServer.Size = new Size(120, 52);
             btnStartServer.TabIndex = 1;
             btnStartServer.Text = "StartServer";
             btnStartServer.UseVisualStyleBackColor = true;
@@ -73,10 +74,9 @@
             // btnStopServer
             // 
             btnStopServer.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            btnStopServer.Location = new Point(847, 102);
-            btnStopServer.Margin = new Padding(3, 4, 3, 4);
+            btnStopServer.Location = new Point(741, 76);
             btnStopServer.Name = "btnStopServer";
-            btnStopServer.Size = new Size(137, 68);
+            btnStopServer.Size = new Size(120, 51);
             btnStopServer.TabIndex = 2;
             btnStopServer.Text = "StopServer";
             btnStopServer.UseVisualStyleBackColor = true;
@@ -85,9 +85,10 @@
             // btnStartCOM
             // 
             btnStartCOM.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            btnStartCOM.Location = new Point(847, 177);
+            btnStartCOM.Location = new Point(741, 133);
+            btnStartCOM.Margin = new Padding(3, 2, 3, 2);
             btnStartCOM.Name = "btnStartCOM";
-            btnStartCOM.Size = new Size(137, 48);
+            btnStartCOM.Size = new Size(120, 36);
             btnStartCOM.TabIndex = 3;
             btnStartCOM.Text = "StartCOM";
             btnStartCOM.UseVisualStyleBackColor = true;
@@ -96,9 +97,10 @@
             // btnStopCOM
             // 
             btnStopCOM.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            btnStopCOM.Location = new Point(847, 246);
+            btnStopCOM.Location = new Point(741, 184);
+            btnStopCOM.Margin = new Padding(3, 2, 3, 2);
             btnStopCOM.Name = "btnStopCOM";
-            btnStopCOM.Size = new Size(137, 44);
+            btnStopCOM.Size = new Size(120, 33);
             btnStopCOM.TabIndex = 4;
             btnStopCOM.Text = "StopCOM";
             btnStopCOM.UseVisualStyleBackColor = true;
@@ -107,27 +109,29 @@
             // txtHoldingValue
             // 
             txtHoldingValue.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            txtHoldingValue.Location = new Point(709, 326);
+            txtHoldingValue.Location = new Point(620, 244);
+            txtHoldingValue.Margin = new Padding(3, 2, 3, 2);
             txtHoldingValue.Name = "txtHoldingValue";
-            txtHoldingValue.Size = new Size(125, 27);
+            txtHoldingValue.Size = new Size(110, 23);
             txtHoldingValue.TabIndex = 5;
             // 
             // lbRawBus
             // 
             lbRawBus.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             lbRawBus.AutoSize = true;
-            lbRawBus.Location = new Point(709, 303);
+            lbRawBus.Location = new Point(620, 227);
             lbRawBus.Name = "lbRawBus";
-            lbRawBus.Size = new Size(64, 20);
+            lbRawBus.Size = new Size(51, 15);
             lbRawBus.TabIndex = 6;
             lbRawBus.Text = "Raw Bus";
             // 
             // btnChangeHolding
             // 
             btnChangeHolding.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            btnChangeHolding.Location = new Point(847, 314);
+            btnChangeHolding.Location = new Point(741, 236);
+            btnChangeHolding.Margin = new Padding(3, 2, 3, 2);
             btnChangeHolding.Name = "btnChangeHolding";
-            btnChangeHolding.Size = new Size(138, 50);
+            btnChangeHolding.Size = new Size(121, 38);
             btnChangeHolding.TabIndex = 9;
             btnChangeHolding.Text = "Toggle";
             btnChangeHolding.UseVisualStyleBackColor = true;
@@ -136,9 +140,10 @@
             // btnClearText
             // 
             btnClearText.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            btnClearText.Location = new Point(846, 487);
+            btnClearText.Location = new Point(740, 365);
+            btnClearText.Margin = new Padding(3, 2, 3, 2);
             btnClearText.Name = "btnClearText";
-            btnClearText.Size = new Size(137, 47);
+            btnClearText.Size = new Size(120, 35);
             btnClearText.TabIndex = 10;
             btnClearText.Text = "Clear Text";
             btnClearText.UseVisualStyleBackColor = true;
@@ -146,9 +151,10 @@
             // btnChooseDB
             // 
             btnChooseDB.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            btnChooseDB.Location = new Point(847, 540);
+            btnChooseDB.Location = new Point(741, 405);
+            btnChooseDB.Margin = new Padding(3, 2, 3, 2);
             btnChooseDB.Name = "btnChooseDB";
-            btnChooseDB.Size = new Size(136, 45);
+            btnChooseDB.Size = new Size(119, 34);
             btnChooseDB.TabIndex = 12;
             btnChooseDB.Text = "Choose DB";
             btnChooseDB.UseVisualStyleBackColor = true;
@@ -162,9 +168,9 @@
             // 
             lbTag.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             lbTag.AutoSize = true;
-            lbTag.Location = new Point(263, 13);
+            lbTag.Location = new Point(230, 10);
             lbTag.Name = "lbTag";
-            lbTag.Size = new Size(32, 20);
+            lbTag.Size = new Size(25, 15);
             lbTag.TabIndex = 13;
             lbTag.Text = "Tag";
             // 
@@ -172,166 +178,195 @@
             // 
             listBoxSignals.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             listBoxSignals.FormattingEnabled = true;
-            listBoxSignals.Location = new Point(12, 83);
+            listBoxSignals.ItemHeight = 15;
+            listBoxSignals.Location = new Point(10, 62);
+            listBoxSignals.Margin = new Padding(3, 2, 3, 2);
             listBoxSignals.Name = "listBoxSignals";
-            listBoxSignals.Size = new Size(245, 564);
+            listBoxSignals.Size = new Size(215, 424);
             listBoxSignals.TabIndex = 14;
             listBoxSignals.MouseDoubleClick += listBoxSignals_MouseDoubleClick;
             // 
             // txtTag
             // 
             txtTag.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            txtTag.Location = new Point(263, 36);
+            txtTag.Location = new Point(230, 27);
+            txtTag.Margin = new Padding(3, 2, 3, 2);
             txtTag.Name = "txtTag";
             txtTag.ReadOnly = true;
-            txtTag.Size = new Size(494, 27);
+            txtTag.Size = new Size(433, 23);
             txtTag.TabIndex = 15;
             // 
             // lbDescription
             // 
             lbDescription.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             lbDescription.AutoSize = true;
-            lbDescription.Location = new Point(263, 76);
+            lbDescription.Location = new Point(230, 57);
             lbDescription.Name = "lbDescription";
-            lbDescription.Size = new Size(85, 20);
+            lbDescription.Size = new Size(67, 15);
             lbDescription.TabIndex = 16;
             lbDescription.Text = "Description";
             // 
             // txtDescription
             // 
             txtDescription.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            txtDescription.Location = new Point(263, 102);
+            txtDescription.Location = new Point(230, 76);
+            txtDescription.Margin = new Padding(3, 2, 3, 2);
             txtDescription.Name = "txtDescription";
             txtDescription.ReadOnly = true;
-            txtDescription.Size = new Size(494, 27);
+            txtDescription.Size = new Size(433, 23);
             txtDescription.TabIndex = 17;
             // 
             // lbAdress
             // 
             lbAdress.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             lbAdress.AutoSize = true;
-            lbAdress.Location = new Point(263, 150);
+            lbAdress.Location = new Point(230, 112);
             lbAdress.Name = "lbAdress";
-            lbAdress.Size = new Size(53, 20);
+            lbAdress.Size = new Size(42, 15);
             lbAdress.TabIndex = 18;
             lbAdress.Text = "Adress";
             // 
             // txtAdress
             // 
             txtAdress.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            txtAdress.Location = new Point(263, 177);
+            txtAdress.Location = new Point(230, 133);
+            txtAdress.Margin = new Padding(3, 2, 3, 2);
             txtAdress.Name = "txtAdress";
             txtAdress.ReadOnly = true;
-            txtAdress.Size = new Size(125, 27);
+            txtAdress.Size = new Size(110, 23);
             txtAdress.TabIndex = 19;
             // 
             // lbEngLow
             // 
             lbEngLow.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             lbEngLow.AutoSize = true;
-            lbEngLow.Location = new Point(460, 152);
+            lbEngLow.Location = new Point(402, 114);
             lbEngLow.Name = "lbEngLow";
-            lbEngLow.Size = new Size(34, 20);
+            lbEngLow.Size = new Size(28, 15);
             lbEngLow.TabIndex = 20;
             lbEngLow.Text = "Min";
             // 
             // txtEngLow
             // 
             txtEngLow.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            txtEngLow.Location = new Point(460, 177);
+            txtEngLow.Location = new Point(402, 133);
+            txtEngLow.Margin = new Padding(3, 2, 3, 2);
             txtEngLow.Name = "txtEngLow";
             txtEngLow.ReadOnly = true;
-            txtEngLow.Size = new Size(125, 27);
+            txtEngLow.Size = new Size(110, 23);
             txtEngLow.TabIndex = 21;
             // 
             // lbEngHigh
             // 
             lbEngHigh.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             lbEngHigh.AutoSize = true;
-            lbEngHigh.Location = new Point(605, 150);
+            lbEngHigh.Location = new Point(529, 112);
             lbEngHigh.Name = "lbEngHigh";
-            lbEngHigh.Size = new Size(37, 20);
+            lbEngHigh.Size = new Size(30, 15);
             lbEngHigh.TabIndex = 22;
             lbEngHigh.Text = "Max";
             // 
             // txtEngHigh
             // 
             txtEngHigh.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            txtEngHigh.Location = new Point(605, 177);
+            txtEngHigh.Location = new Point(529, 133);
+            txtEngHigh.Margin = new Padding(3, 2, 3, 2);
             txtEngHigh.Name = "txtEngHigh";
             txtEngHigh.ReadOnly = true;
-            txtEngHigh.Size = new Size(125, 27);
+            txtEngHigh.Size = new Size(110, 23);
             txtEngHigh.TabIndex = 23;
             // 
             // lbSerialLow
             // 
             lbSerialLow.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             lbSerialLow.AutoSize = true;
-            lbSerialLow.Location = new Point(460, 220);
+            lbSerialLow.Location = new Point(402, 165);
             lbSerialLow.Name = "lbSerialLow";
-            lbSerialLow.Size = new Size(61, 20);
+            lbSerialLow.Size = new Size(50, 15);
             lbSerialLow.TabIndex = 24;
             lbSerialLow.Text = "Bus Min";
             // 
             // txtSerialLow
             // 
             txtSerialLow.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            txtSerialLow.Location = new Point(460, 246);
+            txtSerialLow.Location = new Point(402, 184);
+            txtSerialLow.Margin = new Padding(3, 2, 3, 2);
             txtSerialLow.Name = "txtSerialLow";
             txtSerialLow.ReadOnly = true;
-            txtSerialLow.Size = new Size(125, 27);
+            txtSerialLow.Size = new Size(110, 23);
             txtSerialLow.TabIndex = 25;
             // 
             // lbSerialHigh
             // 
             lbSerialHigh.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             lbSerialHigh.AutoSize = true;
-            lbSerialHigh.Location = new Point(605, 220);
+            lbSerialHigh.Location = new Point(529, 165);
             lbSerialHigh.Name = "lbSerialHigh";
-            lbSerialHigh.Size = new Size(64, 20);
+            lbSerialHigh.Size = new Size(52, 15);
             lbSerialHigh.TabIndex = 26;
             lbSerialHigh.Text = "Bus Max";
             // 
             // txtSerialHigh
             // 
             txtSerialHigh.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            txtSerialHigh.Location = new Point(605, 246);
+            txtSerialHigh.Location = new Point(529, 184);
+            txtSerialHigh.Margin = new Padding(3, 2, 3, 2);
             txtSerialHigh.Name = "txtSerialHigh";
             txtSerialHigh.ReadOnly = true;
-            txtSerialHigh.Size = new Size(125, 27);
+            txtSerialHigh.Size = new Size(110, 23);
             txtSerialHigh.TabIndex = 27;
             // 
             // comboBoxSerialLine
             // 
             comboBoxSerialLine.FormattingEnabled = true;
-            comboBoxSerialLine.Location = new Point(27, 34);
+            comboBoxSerialLine.Location = new Point(24, 26);
+            comboBoxSerialLine.Margin = new Padding(3, 2, 3, 2);
             comboBoxSerialLine.Name = "comboBoxSerialLine";
-            comboBoxSerialLine.Size = new Size(208, 28);
+            comboBoxSerialLine.Size = new Size(182, 23);
             comboBoxSerialLine.TabIndex = 28;
             comboBoxSerialLine.SelectedIndexChanged += comboBoxSerialLine_SelectedIndexChanged;
             // 
             // lbEngUnit
             // 
             lbEngUnit.AutoSize = true;
-            lbEngUnit.Location = new Point(752, 150);
+            lbEngUnit.Location = new Point(658, 112);
             lbEngUnit.Name = "lbEngUnit";
-            lbEngUnit.Size = new Size(65, 20);
+            lbEngUnit.Size = new Size(52, 15);
             lbEngUnit.TabIndex = 29;
             lbEngUnit.Text = "Eng Unit";
             // 
             // txtEngUnit
             // 
-            txtEngUnit.Location = new Point(752, 177);
+            txtEngUnit.Location = new Point(658, 133);
+            txtEngUnit.Margin = new Padding(3, 2, 3, 2);
             txtEngUnit.Name = "txtEngUnit";
             txtEngUnit.ReadOnly = true;
-            txtEngUnit.Size = new Size(82, 27);
+            txtEngUnit.Size = new Size(72, 23);
             txtEngUnit.TabIndex = 30;
+            // 
+            // txtHoldingAdress
+            // 
+            txtHoldingAdress.Location = new Point(620, 310);
+            txtHoldingAdress.Name = "txtHoldingAdress";
+            txtHoldingAdress.Size = new Size(110, 23);
+            txtHoldingAdress.TabIndex = 31;
+            // 
+            // lbHoldingAdress
+            // 
+            lbHoldingAdress.AutoSize = true;
+            lbHoldingAdress.Location = new Point(620, 292);
+            lbHoldingAdress.Name = "lbHoldingAdress";
+            lbHoldingAdress.Size = new Size(88, 15);
+            lbHoldingAdress.TabIndex = 32;
+            lbHoldingAdress.Text = "Holding Adress";
             // 
             // Form1
             // 
-            AutoScaleDimensions = new SizeF(8F, 20F);
+            AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1101, 668);
+            ClientSize = new Size(963, 501);
+            Controls.Add(lbHoldingAdress);
+            Controls.Add(txtHoldingAdress);
             Controls.Add(txtEngUnit);
             Controls.Add(lbEngUnit);
             Controls.Add(comboBoxSerialLine);
@@ -359,7 +394,6 @@
             Controls.Add(btnStartCOM);
             Controls.Add(btnStopServer);
             Controls.Add(btnStartServer);
-            Margin = new Padding(3, 4, 3, 4);
             Name = "Form1";
             Text = "Form1";
             ResumeLayout(false);
@@ -395,5 +429,7 @@
         private ComboBox comboBoxSerialLine;
         private Label lbEngUnit;
         private TextBox txtEngUnit;
+        private TextBox txtHoldingAdress;
+        private Label lbHoldingAdress;
     }
 }
