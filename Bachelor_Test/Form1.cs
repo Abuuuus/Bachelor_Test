@@ -88,38 +88,81 @@ namespace Bachelor_Test
         {
             try
             {
-                ushort startAddress = ushort.Parse(txtAdress.Text);
+                ushort startAddress = ushort.Parse(textHAddress.Text);
                 string addressValue = txtHoldingValue.Text;
-                ushort[] values = addressValue.Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries)
-                                              .Select(ushort.Parse).ToArray();
+                int adr = Convert.ToInt32(addressValue);
+                bool BitAdress = addressValue.Contains(".");
+                List <ushort> modbusValues = new List <ushort>();
+                List <float> scaledValues = new List <float>();
+                int sensorLow = int.Parse(txtEngLow.Text);
+                int sensorHigh = int.Parse(txtEngHigh.Text);
+                int serialLow = int.Parse(txtSerialLow.Text);
+                int serialHigh = int.Parse(txtSerialHigh.Text);
+                ushort uSendRawData = 0;
+                int Scale;
+                int rawData;
+                int sendRawData;
 
                 // Ensure the TCP Modbus Slave is initialized
-                if (tcpSlave != null && tcpSlave.DataStore != null)
+                if (tcpSlave != null && tcpSlave.DataStore != null)  //HUSK Å FIKS ADRESSER SOM HAR BIT I SEG MANNEN (if nigga dotted) !!!! pluss hvis ikke bit adressen er 0 som min buss verdi (da fungerer ikke regnestykket fix plis). 
                 {
-                    for (int i = 0; i < values.Length; i++)
+                    
+                    if (adr < 0)
                     {
-                        tcpSlave.DataStore.HoldingRegisters[startAddress + i] = values[i];
+                        Scale = serialLow / sensorLow;
+                        rawData = Scale * adr;
+                        sendRawData = rawData + 65536;
+                        uSendRawData = (ushort)sendRawData;
+                      
+
                     }
+                    else 
+                    {
+                        Scale = serialHigh / sensorHigh;
+                        rawData = Scale * adr;
+                        uSendRawData = (ushort)rawData;
+
+                    }
+
+                    MessageBox.Show(Convert.ToString(uSendRawData));
+
+                   
+                    tcpSlave.DataStore.HoldingRegisters[startAddress + 1] = uSendRawData;  
+                    
                 }
                 else
                 {
                     MessageBox.Show("The TCP slave or DataStore is not initialized correctly.", "Initialization Error");
                 }
 
-                // Ensure the RTU Slave Network is initialized
-                if (rtuSlave != null && rtuSlave.DataStore != null)
+                if(rtuSlave !=null && rtuSlave.DataStore != null)
                 {
-                    for (int i = 0; i < values.Length; i++)
+
+                    if (adr < 0)
                     {
-                        tcpSlave.DataStore.HoldingRegisters[startAddress + i] = values[i];
+                        Scale = serialLow / sensorLow;
+                        rawData = Scale * adr;
+                        sendRawData = rawData + 65536;
+                        uSendRawData = (ushort)sendRawData;
+
+
                     }
-                }
-                else
-                {
-                    MessageBox.Show("The RTU slave network or DataStore is not initialized correctly.", "Initialization Error");
+                    else
+                    {
+                        Scale = serialHigh / sensorHigh;
+                        rawData = Scale * adr;
+                        uSendRawData = (ushort)rawData;
+
+                    }
+
+                    MessageBox.Show(Convert.ToString(uSendRawData));
+
+
+                    tcpSlave.DataStore.HoldingRegisters[startAddress + 1] = uSendRawData;
+
+
                 }
 
-                MessageBox.Show($"Holding register starting at {startAddress} set to: {string.Join(",", values)}");
             }
             catch (FormatException)
             {
@@ -171,7 +214,7 @@ namespace Bachelor_Test
 
         private void btnStartServer_Click_1(object sender, EventArgs e)
         {
-            IPAddress address = new IPAddress(new byte[] { 10, 99, 138, 134 });
+            IPAddress address = new IPAddress(new byte[] { 10, 99, 138, 112 });
             int port = 502;
 
             // Initialize cancellation token source

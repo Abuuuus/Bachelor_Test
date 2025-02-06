@@ -56,6 +56,8 @@
             comboBoxSerialLine = new ComboBox();
             lbEngUnit = new Label();
             txtEngUnit = new TextBox();
+            textHAddress = new TextBox();
+            label1 = new Label();
             SuspendLayout();
             // 
             // btnStartServer
@@ -116,11 +118,11 @@
             // 
             lbRawBus.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             lbRawBus.AutoSize = true;
-            lbRawBus.Location = new Point(709, 303);
+            lbRawBus.Location = new Point(694, 303);
             lbRawBus.Name = "lbRawBus";
-            lbRawBus.Size = new Size(64, 20);
+            lbRawBus.Size = new Size(140, 20);
             lbRawBus.TabIndex = 6;
-            lbRawBus.Text = "Raw Bus";
+            lbRawBus.Text = "Type Eng Unit Value";
             // 
             // btnChangeHolding
             // 
@@ -327,11 +329,30 @@
             txtEngUnit.Size = new Size(82, 27);
             txtEngUnit.TabIndex = 30;
             // 
+            // textHAddress
+            // 
+            textHAddress.Location = new Point(709, 395);
+            textHAddress.Name = "textHAddress";
+            textHAddress.Size = new Size(125, 27);
+            textHAddress.TabIndex = 31;
+            // 
+            // label1
+            // 
+            label1.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            label1.AutoSize = true;
+            label1.Location = new Point(694, 372);
+            label1.Name = "label1";
+            label1.Size = new Size(97, 20);
+            label1.TabIndex = 32;
+            label1.Text = "Type Address";
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1101, 668);
+            Controls.Add(label1);
+            Controls.Add(textHAddress);
             Controls.Add(txtEngUnit);
             Controls.Add(lbEngUnit);
             Controls.Add(comboBoxSerialLine);
@@ -395,5 +416,7 @@
         private ComboBox comboBoxSerialLine;
         private Label lbEngUnit;
         private TextBox txtEngUnit;
+        private TextBox textHAddress;
+        private Label label1;
     }
 }
