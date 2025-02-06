@@ -171,7 +171,7 @@ namespace Bachelor_Test
 
         private void btnStartServer_Click_1(object sender, EventArgs e)
         {
-            IPAddress address = new IPAddress(new byte[] { 10, 99, 138, 134 });
+            IPAddress address = new IPAddress(new byte[] { 10, 99, 138, 216 });
             int port = 502;
 
             // Initialize cancellation token source
