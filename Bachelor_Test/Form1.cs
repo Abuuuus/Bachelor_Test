@@ -88,7 +88,7 @@ namespace Bachelor_Test
         {
             try
             {
-                ushort startAddress = ushort.Parse(txtAdress.Text);
+                ushort startAdress = ushort.Parse(txtHoldingAdress.Text);
                 string addressValue = txtHoldingValue.Text;
                 ushort[] values = addressValue.Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries)
                                               .Select(ushort.Parse).ToArray();
