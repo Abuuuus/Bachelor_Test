@@ -31,6 +31,9 @@ namespace Bachelor_Test
         private List<string> serialLineLow = new List<string>();
         private List<string> serialLineHigh = new List<string>();
         private List<string> serialLineName = new List<string>();
+        
+
+       
 
         public Form1()
         {
@@ -88,10 +91,16 @@ namespace Bachelor_Test
         {
             try
             {
-                ushort startAddress = ushort.Parse(textHAddress.Text);
+                string registerAdressRaw = textHAddress.Text;
+                string registerAdress;
+                if (registerAdressRaw.Contains("."))
+                {
+                    registerAdress = registerAdressRaw.Substring(0, registerAdressRaw.IndexOf("."));
+                }
+                else registerAdress = registerAdressRaw;
+                ushort startAddress = ushort.Parse(registerAdress);
                 string addressValue = txtHoldingValue.Text;
                 int adr = Convert.ToInt32(addressValue);
-                bool BitAdress = addressValue.Contains(".");
                 List <ushort> modbusValues = new List <ushort>();
                 List <float> scaledValues = new List <float>();
                 int sensorLow = int.Parse(txtEngLow.Text);
@@ -104,16 +113,27 @@ namespace Bachelor_Test
                 int sendRawData;
 
                 // Ensure the TCP Modbus Slave is initialized
-                if (tcpSlave != null && tcpSlave.DataStore != null)  //HUSK Å FIKS ADRESSER SOM HAR BIT I SEG MANNEN (if nigga dotted) !!!! pluss hvis ikke bit adressen er 0 som min buss verdi (da fungerer ikke regnestykket fix plis). 
+                if (tcpSlave != null && tcpSlave.DataStore != null)  //HUSK Å FIKS ADRESSER SOM HAR BIT I SEG MANNEN (if nigga dotted) 
                 {
-                    
-                    if (adr < 0)
+                    if (registerAdressRaw.Contains("."))
+                    {
+                        int dotAdress = int.Parse(registerAdressRaw.Substring(registerAdressRaw.IndexOf(".") + 1));
+                        BittCounter bittCounter = new BittCounter(dotAdress, adr);
+                        uSendRawData = bittCounter.BittMassage;
+                    }
+                    else if (adr < 0 && serialLow != 0)
                     {
                         Scale = serialLow / sensorLow;
                         rawData = Scale * adr;
                         sendRawData = rawData + 65536;
                         uSendRawData = (ushort)sendRawData;
                       
+
+                    }
+                    else if (adr == 0 && serialLow == 0)
+                    {
+                        
+                        uSendRawData = 0;
 
                     }
                     else 
@@ -158,7 +178,7 @@ namespace Bachelor_Test
                     MessageBox.Show(Convert.ToString(uSendRawData));
 
 
-                    tcpSlave.DataStore.HoldingRegisters[startAddress + 1] = uSendRawData;
+                    rtuSlave.DataStore.HoldingRegisters[startAddress + 1] = uSendRawData;
 
 
                 }
