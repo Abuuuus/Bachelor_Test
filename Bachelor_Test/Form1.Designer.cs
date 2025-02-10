@@ -65,52 +65,6 @@
             menuStrip1.SuspendLayout();
             SuspendLayout();
             // 
-            // btnStartServer
-            // 
-            btnStartServer.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            btnStartServer.Location = new Point(741, 10);
-            btnStartServer.Name = "btnStartServer";
-            btnStartServer.Size = new Size(120, 52);
-            btnStartServer.TabIndex = 1;
-            btnStartServer.Text = "StartServer";
-            btnStartServer.UseVisualStyleBackColor = true;
-            btnStartServer.Click += btnStartServer_Click_1;
-            // 
-            // btnStopServer
-            // 
-            btnStopServer.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            btnStopServer.Location = new Point(741, 76);
-            btnStopServer.Name = "btnStopServer";
-            btnStopServer.Size = new Size(120, 51);
-            btnStopServer.TabIndex = 2;
-            btnStopServer.Text = "StopServer";
-            btnStopServer.UseVisualStyleBackColor = true;
-            btnStopServer.Click += btnStopServer_Click_1;
-            // 
-            // btnStartCOM
-            // 
-            btnStartCOM.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            btnStartCOM.Location = new Point(741, 133);
-            btnStartCOM.Margin = new Padding(3, 2, 3, 2);
-            btnStartCOM.Name = "btnStartCOM";
-            btnStartCOM.Size = new Size(120, 36);
-            btnStartCOM.TabIndex = 3;
-            btnStartCOM.Text = "StartCOM";
-            btnStartCOM.UseVisualStyleBackColor = true;
-            btnStartCOM.Click += btnStartCOM_Click;
-            // 
-            // btnStopCOM
-            // 
-            btnStopCOM.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            btnStopCOM.Location = new Point(741, 184);
-            btnStopCOM.Margin = new Padding(3, 2, 3, 2);
-            btnStopCOM.Name = "btnStopCOM";
-            btnStopCOM.Size = new Size(120, 33);
-            btnStopCOM.TabIndex = 4;
-            btnStopCOM.Text = "StopCOM";
-            btnStopCOM.UseVisualStyleBackColor = true;
-            btnStopCOM.Click += btnStopCOM_Click;
-            // 
             // txtHoldingValue
             // 
             txtHoldingValue.Anchor = AnchorStyles.Top | AnchorStyles.Right;

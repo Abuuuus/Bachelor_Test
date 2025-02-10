@@ -25,10 +25,6 @@ namespace Bachelor_Test
         private List<string> serialLineLow = new List<string>();
         private List<string> serialLineHigh = new List<string>();
         private List<string> serialLineName = new List<string>();
-        
-
-       
-
         private byte slaveID = 1; //Default slaveID 1
         private string comPort = ""; //Gets assigned in the GUI
         private int baudRate;
@@ -59,8 +55,6 @@ namespace Bachelor_Test
                 string addressValue = txtHoldingValue.Text;
                 int adr = Convert.ToInt32(addressValue);
                 bool BitAdress = addressValue.Contains(".");
-                List <ushort> modbusValues = new List <ushort>();
-                List <float> scaledValues = new List <float>();
                 List<ushort> modbusValues = new List<ushort>();
                 List<float> scaledValues = new List<float>();
                 int sensorLow = int.Parse(txtEngLow.Text);
@@ -72,8 +66,7 @@ namespace Bachelor_Test
                 int rawData;
                 int sendRawData;
 
-                // Ensure the TCP Modbus Slave is initialized
-                if (tcpSlave != null && tcpSlave.DataStore != null)  //HUSK Å FIKS ADRESSER SOM HAR BIT I SEG MANNEN (if nigga dotted) !!!! pluss hvis ikke bit adressen er 0 som min buss verdi (da fungerer ikke regnestykket fix plis). 
+                // Ensure the TCP Modbus Slave is initialize
                 if (tcpSlave != null && tcpSlave.DataStore != null)  //HUSK Å FIKS ADRESSER SOM HAR BIT I SEG MANNEN (if nigga dotted) 
                 {
                     if (registerAdressRaw.Contains("."))
@@ -81,73 +74,75 @@ namespace Bachelor_Test
                         int dotAdress = int.Parse(registerAdressRaw.Substring(registerAdressRaw.IndexOf(".") + 1));
                         BittCounter bittCounter = new BittCounter(dotAdress, adr);
                         uSendRawData = bittCounter.BittMassage;
+                        MessageBox.Show(Convert.ToString(uSendRawData));
                     }
                     else if (adr < 0 && serialLow != 0)
-                {
-
-                    if (adr < 0)
                     {
-                        Scale = serialLow / sensorLow;
-                        rawData = Scale * adr;
-                        sendRawData = rawData + 65536;
-                        uSendRawData = (ushort)sendRawData;
-
-                      
-
-                    }
-                    else if (adr == 0 && serialLow == 0)
-                    {
-                        
-                        uSendRawData = 0;
-
-                    }
-                    else
-                    {
-                        Scale = serialHigh / sensorHigh;
-                        rawData = Scale * adr;
-                        uSendRawData = (ushort)rawData;
-
-                    }
-
-                    MessageBox.Show(Convert.ToString(uSendRawData));
+                        MessageBox.Show("Hei");
+                        if (adr < 0)
+                        {
+                            Scale = serialLow / sensorLow;
+                            rawData = Scale * adr;
+                            sendRawData = rawData + 65536;
+                            uSendRawData = (ushort)sendRawData;
 
 
-                    tcpSlave.DataStore.HoldingRegisters[startAddress + 1] = uSendRawData;
 
-                }
-                else
-                {
-                    MessageBox.Show("The TCP slave or DataStore is not initialized correctly.", "Initialization Error");
-                }
+                        }
+                        else if (adr == 0 && serialLow == 0)
+                        {
 
-                if (rtuSlave != null && rtuSlave.DataStore != null)
-                {
+                            uSendRawData = 0;
 
-                    if (adr < 0)
-                    {
-                        Scale = serialLow / sensorLow;
-                        rawData = Scale * adr;
-                        sendRawData = rawData + 65536;
-                        uSendRawData = (ushort)sendRawData;
+                        }
+                        else
+                        {
+                            Scale = serialHigh / sensorHigh;
+                            rawData = Scale * adr;
+                            uSendRawData = (ushort)rawData;
 
+                        }
+
+                        MessageBox.Show(Convert.ToString(uSendRawData));
+
+
+                        tcpSlave.DataStore.HoldingRegisters[startAddress + 1] = uSendRawData;
 
                     }
                     else
                     {
-                        Scale = serialHigh / sensorHigh;
-                        rawData = Scale * adr;
-                        uSendRawData = (ushort)rawData;
+                        MessageBox.Show("The TCP slave or DataStore is not initialized correctly.", "Initialization Error");
+                    }
+
+                    if (rtuSlave != null && rtuSlave.DataStore != null)
+                    {
+
+                        if (adr < 0)
+                        {
+                            Scale = serialLow / sensorLow;
+                            rawData = Scale * adr;
+                            sendRawData = rawData + 65536;
+                            uSendRawData = (ushort)sendRawData;
+
+
+                        }
+                        else
+                        {
+                            Scale = serialHigh / sensorHigh;
+                            rawData = Scale * adr;
+                            uSendRawData = (ushort)rawData;
+
+                        }
+
+                        MessageBox.Show(Convert.ToString(uSendRawData));
+
+
+                        rtuSlave.DataStore.HoldingRegisters[startAddress + 1] = uSendRawData;
+
 
                     }
 
-                    MessageBox.Show(Convert.ToString(uSendRawData));
-
-
-                    rtuSlave.DataStore.HoldingRegisters[startAddress + 1] = uSendRawData;
-
-
                 }
-
             }
             catch (FormatException)
             {
