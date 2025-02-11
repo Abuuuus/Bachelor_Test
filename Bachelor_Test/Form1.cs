@@ -159,50 +159,6 @@ namespace Bachelor_Test
         }
 
 
-        private byte[] GetLocalIPAddress()
-        {
-            try
-            {
-                foreach (var networkInterface in System.Net.NetworkInformation.NetworkInterface.GetAllNetworkInterfaces())
-                {
-                    if (networkInterface.NetworkInterfaceType == System.Net.NetworkInformation.NetworkInterfaceType.Ethernet &&
-                        networkInterface.OperationalStatus == System.Net.NetworkInformation.OperationalStatus.Up &&
-                        !networkInterface.Description.Contains("Virtual") && // Exclude virtual networks
-                        !networkInterface.Name.Contains("VMware") && // Exclude VMware networks
-                        !networkInterface.Description.Contains("Hyper-V")) // Exclude Hyper-V networks
-                    {
-                        var ipProperties = networkInterface.GetIPProperties();
-                        foreach (var ip in ipProperties.UnicastAddresses)
-                        {
-                            if (ip.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
-                            {
-                                string ipAddress = ip.Address.ToString();
-                                byte[] serverIP = new byte[4];
-
-                                // Split the IP address into its components
-                                string[] ipParts = ipAddress.Split('.');
-
-                                // Convert each part to a byte and store it in the array
-                                for (int i = 0; i < 4; i++)
-                                {
-                                    serverIP[i] = byte.Parse(ipParts[i]);
-                                }
-
-                                return serverIP;
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"No valid IPV4 addresses could be found: {ex}");
-            }
-
-            // Return null if no IP address is found
-            return null;
-        }
-
 
         private void connectToDatabase(string filepath)
         {
