@@ -507,7 +507,7 @@ namespace Bachelor_Test
                 MessageBox.Show("Ingen rad valgt!");
 
             }
-            else 
+            else
             {
                 string filepath = stringPath;  // Hent filbanen valgt av brukeren
                 if (string.IsNullOrEmpty(stringPath))
@@ -536,7 +536,7 @@ namespace Bachelor_Test
 
 
             }
-           
+        }
                
             
         private void txtHoldingValue_TextChanged(object sender, EventArgs e)
