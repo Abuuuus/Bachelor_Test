@@ -50,21 +50,22 @@
             comboBoxSerialLine = new ComboBox();
             lbEngUnit = new Label();
             txtEngUnit = new TextBox();
-            textHAddress = new TextBox();
-            label1 = new Label();
             menuStrip1 = new MenuStrip();
             toolStripFile = new ToolStripMenuItem();
             importIOListToolStripMenuItem = new ToolStripMenuItem();
             exitToolStripMenuItem = new ToolStripMenuItem();
             toolStripCommSettings = new ToolStripMenuItem();
             settingsToolStripMenuItem = new ToolStripMenuItem();
-            toolStripMenuItem2 = new ToolStripMenuItem();
             btnStartSimulator = new Button();
             btnStopSimulator = new Button();
             label2 = new Label();
             label3 = new Label();
             btnResultNotOK = new Button();
             btnResultOK = new Button();
+            txtRawBusValue = new TextBox();
+            lbRawBusValue = new Label();
+            cbPlusRegister = new CheckBox();
+            cbMinusRegister = new CheckBox();
             menuStrip1.SuspendLayout();
             SuspendLayout();
             // 
@@ -75,6 +76,7 @@
             txtHoldingValue.Name = "txtHoldingValue";
             txtHoldingValue.Size = new Size(125, 27);
             txtHoldingValue.TabIndex = 5;
+            txtHoldingValue.TextChanged += txtHoldingValue_TextChanged;
             // 
             // lbRawBus
             // 
@@ -82,9 +84,9 @@
             lbRawBus.AutoSize = true;
             lbRawBus.Location = new Point(709, 327);
             lbRawBus.Name = "lbRawBus";
-            lbRawBus.Size = new Size(140, 20);
+            lbRawBus.Size = new Size(74, 20);
             lbRawBus.TabIndex = 6;
-            lbRawBus.Text = "Type Eng Unit Value";
+            lbRawBus.Text = "Eng Value";
             // 
             // btnChangeHolding
             // 
@@ -96,10 +98,6 @@
             btnChangeHolding.Text = "Toggle";
             btnChangeHolding.UseVisualStyleBackColor = true;
             btnChangeHolding.Click += btnChangeHolding_Click;
-            // 
-            // FileDialogDB
-            // 
-            FileDialogDB.FileName = "FileDialogDB";
             // 
             // lbTag
             // 
@@ -271,30 +269,10 @@
             txtEngUnit.ReadOnly = true;
             txtEngUnit.Size = new Size(82, 27);
             txtEngUnit.TabIndex = 30;
-            // 
-            // textHAddress
-            // 
-            textHAddress.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            textHAddress.Location = new Point(709, 420);
-            textHAddress.Margin = new Padding(3, 4, 3, 4);
-            textHAddress.Name = "textHAddress";
-            textHAddress.Size = new Size(142, 27);
-            textHAddress.TabIndex = 31;
-            // 
-            // label1
-            // 
-            label1.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            label1.AutoSize = true;
-            label1.Location = new Point(709, 396);
-            label1.Name = "label1";
-            label1.Size = new Size(97, 20);
-            label1.TabIndex = 32;
-            label1.Text = "Type Address";
-            // 
             // menuStrip1
             // 
             menuStrip1.ImageScalingSize = new Size(20, 20);
-            menuStrip1.Items.AddRange(new ToolStripItem[] { toolStripFile, toolStripCommSettings, toolStripMenuItem2 });
+            menuStrip1.Items.AddRange(new ToolStripItem[] { toolStripFile, toolStripCommSettings });
             menuStrip1.Location = new Point(0, 0);
             menuStrip1.Name = "menuStrip1";
             menuStrip1.Padding = new Padding(6, 3, 0, 3);
@@ -336,12 +314,6 @@
             settingsToolStripMenuItem.Size = new Size(145, 26);
             settingsToolStripMenuItem.Text = "Settings";
             settingsToolStripMenuItem.Click += settingsToolStripMenuItem_Click;
-            // 
-            // toolStripMenuItem2
-            // 
-            toolStripMenuItem2.Name = "toolStripMenuItem2";
-            toolStripMenuItem2.Size = new Size(156, 24);
-            toolStripMenuItem2.Text = "toolStripMenuItem2";
             // 
             // btnStartSimulator
             // 
@@ -407,6 +379,43 @@
             btnResultOK.Text = "✔";
             btnResultOK.UseVisualStyleBackColor = false;
             btnResultOK.Click += btnResultOKClick;
+            // txtRawBusValue
+            // 
+            txtRawBusValue.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            txtRawBusValue.Location = new Point(568, 349);
+            txtRawBusValue.Name = "txtRawBusValue";
+            txtRawBusValue.ReadOnly = true;
+            txtRawBusValue.Size = new Size(125, 27);
+            txtRawBusValue.TabIndex = 36;
+            // 
+            // lbRawBusValue
+            // 
+            lbRawBusValue.AutoSize = true;
+            lbRawBusValue.Location = new Point(568, 327);
+            lbRawBusValue.Name = "lbRawBusValue";
+            lbRawBusValue.Size = new Size(64, 20);
+            lbRawBusValue.TabIndex = 37;
+            lbRawBusValue.Text = "Raw Bus";
+            // 
+            // cbPlusRegister
+            // 
+            cbPlusRegister.AutoSize = true;
+            cbPlusRegister.Location = new Point(262, 244);
+            cbPlusRegister.Name = "cbPlusRegister";
+            cbPlusRegister.Size = new Size(49, 24);
+            cbPlusRegister.TabIndex = 38;
+            cbPlusRegister.Text = "+1";
+            cbPlusRegister.UseVisualStyleBackColor = true;
+            // 
+            // cbMinusRegister
+            // 
+            cbMinusRegister.AutoSize = true;
+            cbMinusRegister.Location = new Point(326, 245);
+            cbMinusRegister.Name = "cbMinusRegister";
+            cbMinusRegister.Size = new Size(45, 24);
+            cbMinusRegister.TabIndex = 39;
+            cbMinusRegister.Text = "-1";
+            cbMinusRegister.UseVisualStyleBackColor = true;
             // 
             // Form1
             // 
@@ -417,10 +426,12 @@
             Controls.Add(btnResultNotOK);
             Controls.Add(label3);
             Controls.Add(label2);
+            Controls.Add(cbMinusRegister);
+            Controls.Add(cbPlusRegister);
+            Controls.Add(lbRawBusValue);
+            Controls.Add(txtRawBusValue);
             Controls.Add(btnStopSimulator);
             Controls.Add(btnStartSimulator);
-            Controls.Add(label1);
-            Controls.Add(textHAddress);
             Controls.Add(txtEngUnit);
             Controls.Add(lbEngUnit);
             Controls.Add(comboBoxSerialLine);
@@ -476,14 +487,11 @@
         private ComboBox comboBoxSerialLine;
         private Label lbEngUnit;
         private TextBox txtEngUnit;
-        private TextBox textHAddress;
-        private Label label1;
         private MenuStrip menuStrip1;
         private ToolStripMenuItem toolStripFile;
         private ToolStripMenuItem importIOListToolStripMenuItem;
         private ToolStripMenuItem exitToolStripMenuItem;
         private ToolStripMenuItem toolStripCommSettings;
-        private ToolStripMenuItem toolStripMenuItem2;
         private ToolStripMenuItem settingsToolStripMenuItem;
         private Button btnStartSimulator;
         private Button btnStopSimulator;
@@ -491,5 +499,9 @@
         private Label label3;
         private Button btnResultNotOK;
         private Button btnResultOK;
+        private TextBox txtRawBusValue;
+        private Label lbRawBusValue;
+        private CheckBox cbPlusRegister;
+        private CheckBox cbMinusRegister;
     }
 }

@@ -28,8 +28,7 @@ namespace Bachelor_Test
         private List<string> verifiedTest = new List<string>(); // Verifing if tag is OK or not OK under testing. 
         private byte slaveID = 1; //Default slaveID 1
         private string comPort = ""; //Gets assigned in the GUI
-        private int baudRate;
-        private int dataBits;
+        private int baudRate, dataBits;
         private Parity parity;
         private StopBits stopBits;
         private byte[] serverIpAdress = new byte[4];
@@ -47,19 +46,34 @@ namespace Bachelor_Test
         {
             try
             {
-                string registerAdressRaw = textHAddress.Text;
-                string registerAdress;
+                string registerAdressRaw = txtAdress.Text;
+                string registerAdressSubstring;
+                double registerAdress = 0;
+
                 if (registerAdressRaw.Contains("."))
                 {
-                    registerAdress = registerAdressRaw.Substring(0, registerAdressRaw.IndexOf("."));
+                    registerAdressSubstring = registerAdressRaw.Substring(0, registerAdressRaw.IndexOf("."));
+                    registerAdress = double.Parse(registerAdressSubstring) - 40000; // Adjusting for the leading number
                 }
-                else registerAdress = registerAdressRaw;
-                ushort startAddress = ushort.Parse(registerAdress);
+                else
+                {
+                    registerAdressSubstring = registerAdressRaw;
+                    registerAdress = double.Parse(registerAdressRaw) - 40000; // Adjusting for the leading number
+                }
+
+                if (cbPlusRegister.Checked && !cbMinusRegister.Checked)
+                {
+                    registerAdress += 1;
+                }
+                else if (cbMinusRegister.Checked && !cbPlusRegister.Checked)
+                {
+                    registerAdress -= 1;
+                }
+
+                ushort startAddress = (ushort)registerAdress;
                 string addressValue = txtHoldingValue.Text;
                 int adr = Convert.ToInt32(addressValue);
                 bool BitAdress = addressValue.Contains(".");
-                List<ushort> modbusValues = new List<ushort>();
-                List<float> scaledValues = new List<float>();
                 int sensorLow = int.Parse(txtEngLow.Text);
                 int sensorHigh = int.Parse(txtEngHigh.Text);
                 int serialLow = int.Parse(txtSerialLow.Text);
@@ -70,6 +84,7 @@ namespace Bachelor_Test
                 int sendRawData;
 
                 // Ensure the TCP Modbus Slave is initialize
+
                 if (tcpSlave != null && tcpSlave.DataStore != null)
                 {
                     if (registerAdressRaw.Contains("."))
@@ -77,74 +92,54 @@ namespace Bachelor_Test
                         int dotAdress = int.Parse(registerAdressRaw.Substring(registerAdressRaw.IndexOf(".") + 1));
                         BittCounter bittCounter = new BittCounter(dotAdress, adr);
                         uSendRawData = bittCounter.BittMassage;
-                        MessageBox.Show(Convert.ToString(uSendRawData));
                     }
                     else if (adr < 0 && serialLow != 0)
                     {
-                        MessageBox.Show("Hei");
-                        if (adr < 0)
-                        {
-                            Scale = serialLow / sensorLow;
-                            rawData = Scale * adr;
-                            sendRawData = rawData + 65536;
-                            uSendRawData = (ushort)sendRawData;
-
-
-
-                        }
-                        else if (adr == 0 && serialLow == 0)
-                        {
-
-                            uSendRawData = 0;
-
-                        }
-                        else
-                        {
-                            Scale = serialHigh / sensorHigh;
-                            rawData = Scale * adr;
-                            uSendRawData = (ushort)rawData;
-
-                        }
-
-                        MessageBox.Show(Convert.ToString(uSendRawData));
-
-
-                        tcpSlave.DataStore.HoldingRegisters[startAddress + 1] = uSendRawData;
-
+                        Scale = serialLow / sensorLow;
+                        rawData = Scale * adr;
+                        sendRawData = rawData + 65536;
+                        uSendRawData = (ushort)sendRawData;
+                    }
+                    else if (adr == 0 && serialLow == 0)
+                    {
+                        uSendRawData = 0;
                     }
                     else
                     {
-                        MessageBox.Show("The TCP slave or DataStore is not initialized correctly.", "Initialization Error");
+                        Scale = serialHigh / sensorHigh;
+                        rawData = Scale * adr;
+                        uSendRawData = (ushort)rawData;
                     }
 
-                    if (rtuSlave != null && rtuSlave.DataStore != null)
+                    tcpSlave.DataStore.HoldingRegisters[startAddress] = uSendRawData;
+                    MessageBox.Show($"TCP: {uSendRawData}");
+                }
+
+                // Ensure the RTU Modbus Slave is initialized
+                if (rtuSlave != null && rtuSlave.DataStore != null)
+                {
+                    if (registerAdressRaw.Contains("."))
                     {
-
-                        if (adr < 0)
-                        {
-                            Scale = serialLow / sensorLow;
-                            rawData = Scale * adr;
-                            sendRawData = rawData + 65536;
-                            uSendRawData = (ushort)sendRawData;
-
-
-                        }
-                        else
-                        {
-                            Scale = serialHigh / sensorHigh;
-                            rawData = Scale * adr;
-                            uSendRawData = (ushort)rawData;
-
-                        }
-
-                        MessageBox.Show(Convert.ToString(uSendRawData));
-
-
-                        rtuSlave.DataStore.HoldingRegisters[startAddress + 1] = uSendRawData;
-
-
+                        int dotAdress = int.Parse(registerAdressRaw.Substring(registerAdressRaw.IndexOf(".") + 1));
+                        BittCounter bittCounter = new BittCounter(dotAdress, adr);
+                        uSendRawData = bittCounter.BittMassage;
+                    }
+                    else if (adr < 0)
+                    {
+                        Scale = serialLow / sensorLow;
+                        rawData = Scale * adr;
+                        sendRawData = rawData + 65536;
+                        uSendRawData = (ushort)sendRawData;
+                    }
+                    else
+                    {
+                        Scale = serialHigh / sensorHigh;
+                        rawData = Scale * adr;
+                        uSendRawData = (ushort)rawData;
                     }
 
+                    rtuSlave.DataStore.HoldingRegisters[startAddress] = uSendRawData;
+                    MessageBox.Show($"RTU: {uSendRawData}");
                 }
             }
             catch (FormatException)
@@ -207,7 +202,7 @@ namespace Bachelor_Test
                 }
                 catch (Exception e)
                 {
-                    MessageBox.Show("Error" + e.ToString());
+
                 }
 
 
@@ -278,7 +273,6 @@ namespace Bachelor_Test
         {
             FileDialogDB.InitialDirectory = "C:\\Marine\\Projects";
             FileDialogDB.Filter = "Select Database(*.mdb)|*.mdb";
-           
             if (FileDialogDB.ShowDialog() == DialogResult.OK)
             {
                 stringPath = FileDialogDB.FileName;
@@ -337,10 +331,10 @@ namespace Bachelor_Test
 
         private void StartSimulator()
         {
-            //Starting TCP server
+            // Starting TCP server
             if (serverIpAdress == null)
             {
-                MessageBox.Show("Could not find the local IP adress, make sure network card is set up correctly");
+                MessageBox.Show("Could not find the local IP address, make sure network card is set up correctly");
             }
             else
             {
@@ -369,7 +363,7 @@ namespace Bachelor_Test
                         }
                         catch (Exception ex)
                         {
-                            MessageBox.Show($"Error: {ex.Message}");
+                            MessageBox.Show($"TCP Error: {ex.Message}");
                         }
                     });
 
@@ -384,40 +378,52 @@ namespace Bachelor_Test
                     MessageBox.Show($"Error: {ex.Message}");
                 }
             }
-            //Starting RTU slave
 
-            if (comPort == "")
+            // Starting RTU slave
+            if (string.IsNullOrEmpty(comPort))
             {
                 MessageBox.Show("You have not configured the COM port");
             }
             else
             {
-                serialport = new SerialPort(comPort);
-                serialport.BaudRate = baudRate;
-                serialport.DataBits = dataBits;
-                serialport.Parity = parity;
-                serialport.StopBits = stopBits;
-                serialport.Open();
-                // Create the RTU slave
-                rtuSlave = ModbusSerialSlave.CreateRtu(slaveID, serialport);
-
-                rtuSlave.DataStore = datastore;
-
-                cts2 = new CancellationTokenSource();
-                // Run ListenAsync on a separate task
-                Task.Run(async () =>
+                try
                 {
-                    try
+                    serialport = new SerialPort(comPort)
                     {
-                        rtuSlave.Listen();
-                    }
-                    catch (OperationCanceledException)
-                    {
-                        Console.WriteLine("Modbus listening stopped.");
-                    }
-                });
+                        BaudRate = baudRate,
+                        DataBits = dataBits,
+                        Parity = parity,
+                        StopBits = stopBits
+                    };
+                    serialport.Open();
 
-                MessageBox.Show("RTU slave started");
+                    // Create the RTU slave
+                    rtuSlave = ModbusSerialSlave.CreateRtu(slaveID, serialport);
+                    rtuSlave.DataStore = datastore;
+
+                    cts2 = new CancellationTokenSource();
+
+                    // Run Listen on a separate task
+                    Task.Run(() =>
+                    {
+                        try
+                        {
+                            rtuSlave.Listen();
+                        }
+                        catch (OperationCanceledException)
+                        {
+                            Console.WriteLine("Modbus listening stopped.");
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show($"RTU Error: {ex.Message}");
+                        }
+                    });
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error: {ex.Message}");
+                }
             }
         }
 
@@ -494,7 +500,7 @@ namespace Bachelor_Test
         {
             string newValueOK = "OK";
             string selectedSerialAddress = txtAdress.Text;
-            MessageBox.Show($"Du prøver å oppdatere raden med: {selectedSerialAddress}");
+            MessageBox.Show($"Du prï¿½ver ï¿½ oppdatere raden med: {selectedSerialAddress}");
 
             if (string.IsNullOrEmpty(selectedSerialAddress))
             {
@@ -506,7 +512,7 @@ namespace Bachelor_Test
                 string filepath = stringPath;  // Hent filbanen valgt av brukeren
                 if (string.IsNullOrEmpty(stringPath))
                 {
-                    MessageBox.Show("Filbane er ikke satt! Velg en database først.");
+                    MessageBox.Show("Filbane er ikke satt! Velg en database fï¿½rst.");
                     return;
                 }
                 string updateQuery = "UPDATE Io_List SET W_Citect_Test = @newValue WHERE S_Serial_Line_Address = @serialLineAddress;";
@@ -520,7 +526,7 @@ namespace Bachelor_Test
                     // Legg til parameteren for den valgte raden
                     cmd.Parameters.AddWithValue("@serialLineAddress", selectedSerialAddress);
 
-                    // Åpne forbindelsen og kjør spørringen
+                    // ï¿½pne forbindelsen og kjï¿½r spï¿½rringen
                     connection.Open();
                     int rowsAffected = cmd.ExecuteNonQuery();
 
@@ -533,6 +539,41 @@ namespace Bachelor_Test
            
                
             
+        private void txtHoldingValue_TextChanged(object sender, EventArgs e)
+        {
+            int busScaleLow;
+            int busScaleHigh;
+            int engScaleLow;
+            int engScaleHigh;
+            int scalingLow = 0;
+            int scalingHigh = 0;
+            int rawBusValue;
+
+            if (string.IsNullOrWhiteSpace(txtHoldingValue.Text))
+            {
+                txtRawBusValue.Clear();
+                return;
+            }
+
+            if (int.TryParse(txtSerialLow.Text, out busScaleLow) &&
+                int.TryParse(txtEngLow.Text, out engScaleLow) &&
+                int.TryParse(txtSerialHigh.Text, out busScaleHigh) &&
+                int.TryParse(txtEngHigh.Text, out engScaleHigh) &&
+                int.TryParse(txtHoldingValue.Text, out rawBusValue))
+            {
+                if (engScaleHigh != 0)
+                {
+                    scalingHigh = busScaleHigh / engScaleHigh;
+                    rawBusValue *= scalingHigh;
+                    txtRawBusValue.Text = Convert.ToString(rawBusValue);
+                }
+                else if (engScaleLow != 0)
+                {
+                    scalingLow = busScaleLow / engScaleLow;
+                    rawBusValue *= scalingLow;
+                    txtRawBusValue.Text = Convert.ToString(rawBusValue);
+                }
+            }
         }
     }
 }
