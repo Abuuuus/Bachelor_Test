@@ -25,6 +25,7 @@ namespace Bachelor_Test
         private List<string> serialLineLow = new List<string>();
         private List<string> serialLineHigh = new List<string>();
         private List<string> serialLineName = new List<string>();
+        private List<string> verifiedTest = new List<string>(); // Verifing if tag is OK or not OK under testing. 
         private byte slaveID = 1; //Default slaveID 1
         private string comPort = ""; //Gets assigned in the GUI
         private int baudRate;
@@ -32,6 +33,8 @@ namespace Bachelor_Test
         private Parity parity;
         private StopBits stopBits;
         private byte[] serverIpAdress = new byte[4];
+        private OleDbCommand cmd;
+        private string stringPath;
 
 
         public Form1()
@@ -67,7 +70,7 @@ namespace Bachelor_Test
                 int sendRawData;
 
                 // Ensure the TCP Modbus Slave is initialize
-                if (tcpSlave != null && tcpSlave.DataStore != null)  //HUSK Å FIKS ADRESSER SOM HAR BIT I SEG MANNEN (if nigga dotted) 
+                if (tcpSlave != null && tcpSlave.DataStore != null)
                 {
                     if (registerAdressRaw.Contains("."))
                     {
@@ -159,15 +162,17 @@ namespace Bachelor_Test
         }
 
 
-        //YOOOO
+
         private void connectToDatabase(string filepath)
         {
-            string querystring = "SELECT Io_List.S_Serial_Line_Name, Io_List.S_Instrument_Tag, Io_List.S_Description, Io_List.S_Serial_Line_Address, Io_List.S_Eng_Units, Io_List.S_Eng_Range_Low, Io_List.S_Eng_Range_High, Io_List.S_Serial_Line_Range_Low, Io_List.S_Serial_Line_Range_High\r\nFROM Io_List\r\nWHERE (((Io_List.S_Serial_Line_Name) Is Not Null));";
+            string querystring = "SELECT Io_List.S_Serial_Line_Name, Io_List.S_Instrument_Tag, Io_List.S_Description, Io_List.S_Serial_Line_Address, Io_List.S_Eng_Units, Io_List.S_Eng_Range_Low, Io_List.S_Eng_Range_High, Io_List.S_Serial_Line_Range_Low, Io_List.S_Serial_Line_Range_High, Io_List.W_Citect_Test\r\nFROM Io_List\r\nWHERE (((Io_List.S_Serial_Line_Name) Is Not Null));";
             using OleDbConnection connection = new OleDbConnection($"Provider=Microsoft.ACE.OLEDB.12.0;Data Source={filepath};Persist Security Info=False;");
             using OleDbCommand command = new OleDbCommand(querystring, connection);
+            string verrifiedQuerystring = "UPDATE Io_List SET W_Citect_Test = @newValue WHERE S_Serial_Line_Name IS NOT NULL;";
 
             connection.Open();
             using OleDbDataReader reader = command.ExecuteReader();
+            cmd = new OleDbCommand(verrifiedQuerystring,connection);
             while (reader.Read())
             {
                 try
@@ -176,6 +181,8 @@ namespace Bachelor_Test
                     tag.Add(reader.GetString(1));
                     description.Add(reader.GetString(2));
                     serialAdress.Add(reader.GetString(3));
+                    verifiedTest.Add( reader.IsDBNull(9) ? "" : reader.GetString(9));
+
                     if (serialAdress.Last().Contains("."))
                     {
                         engUnit.Add("");
@@ -184,6 +191,7 @@ namespace Bachelor_Test
                         serialLineLow.Add("0");
                         serialLineHigh.Add("1");
                     }
+
                     else
                     {
                         engUnit.Add(reader.GetString(4));
@@ -191,7 +199,10 @@ namespace Bachelor_Test
                         engRangeHigh.Add(reader.GetString(6));
                         serialLineLow.Add(reader.GetString(7));
                         serialLineHigh.Add(reader.GetString(8));
+
+
                     }
+
 
                 }
                 catch (Exception e)
@@ -267,17 +278,19 @@ namespace Bachelor_Test
         {
             FileDialogDB.InitialDirectory = "C:\\Marine\\Projects";
             FileDialogDB.Filter = "Select Database(*.mdb)|*.mdb";
-            string stringpath;
+           
             if (FileDialogDB.ShowDialog() == DialogResult.OK)
             {
-                stringpath = FileDialogDB.FileName;
-                connectToDatabase(stringpath);
+                stringPath = FileDialogDB.FileName;
+                connectToDatabase(stringPath);
             }
+            
         }
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
             this.Close();
+            
         }
 
         private void settingsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -303,8 +316,8 @@ namespace Bachelor_Test
                 }
 
             }
-            
-            if(tcpListener != null && rtuSlave != null)
+
+            if (tcpListener != null && rtuSlave != null)
             {
                 StopSimulator();
                 StartSimulator();
@@ -314,7 +327,7 @@ namespace Bachelor_Test
         private void btnStartSimulator_Click(object sender, EventArgs e)
         {
             StartSimulator();
-           
+
         }
 
         private void btnStopSimulator_Click(object sender, EventArgs e)
@@ -458,7 +471,7 @@ namespace Bachelor_Test
                     rtuSlave.Dispose();
                     rtuSlave = null;
                 }
-                if (serialport  != null)
+                if (serialport != null)
                 {
                     serialport.Dispose();
                     serialport = null;
@@ -470,6 +483,56 @@ namespace Bachelor_Test
             {
                 MessageBox.Show($"Error stopping RTU slave: {ex.Message}");
             }
+        }
+
+        private void btnResultNotOKClick(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnResultOKClick(object sender, EventArgs e)
+        {
+            string newValueOK = "OK";
+            string selectedSerialAddress = txtAdress.Text;
+            MessageBox.Show($"Du prøver å oppdatere raden med: {selectedSerialAddress}");
+
+            if (string.IsNullOrEmpty(selectedSerialAddress))
+            {
+                MessageBox.Show("Ingen rad valgt!");
+
+            }
+            else 
+            {
+                string filepath = stringPath;  // Hent filbanen valgt av brukeren
+                if (string.IsNullOrEmpty(stringPath))
+                {
+                    MessageBox.Show("Filbane er ikke satt! Velg en database først.");
+                    return;
+                }
+                string updateQuery = "UPDATE Io_List SET W_Citect_Test = @newValue WHERE S_Serial_Line_Address = @serialLineAddress;";
+
+                using (OleDbConnection connection = new OleDbConnection($"Provider=Microsoft.ACE.OLEDB.12.0;Data Source={filepath};Persist Security Info=False;"))
+                using (OleDbCommand cmd = new OleDbCommand(updateQuery, connection))
+                {
+                    // Legg til parameteren for den nye verdien
+                    cmd.Parameters.AddWithValue("@newValue", newValueOK);
+
+                    // Legg til parameteren for den valgte raden
+                    cmd.Parameters.AddWithValue("@serialLineAddress", selectedSerialAddress);
+
+                    // Åpne forbindelsen og kjør spørringen
+                    connection.Open();
+                    int rowsAffected = cmd.ExecuteNonQuery();
+
+                    // Vis antall rader som ble oppdatert
+                    MessageBox.Show($"Antall rader oppdatert: {rowsAffected}");
+                }
+
+
+            }
+           
+               
+            
         }
     }
 }
