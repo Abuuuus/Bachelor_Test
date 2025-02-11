@@ -117,7 +117,7 @@ namespace Bachelor_Test
             parityComboBox.Location = new Point(90, 160);
             parityComboBox.Width = 200;
             parityComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
-            parityComboBox.Items.AddRange(new object[] {"Even", "Odd", "None"});
+            parityComboBox.Items.AddRange(Enum.GetNames(typeof(Parity)));
             parityComboBox.SelectedItem = "None"; // Default value
 
             // Create and configure the Label for IP Address
