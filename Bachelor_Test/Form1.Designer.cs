@@ -58,6 +58,10 @@
             settingsToolStripMenuItem = new ToolStripMenuItem();
             btnStartSimulator = new Button();
             btnStopSimulator = new Button();
+            label2 = new Label();
+            label3 = new Label();
+            btnResultNotOK = new Button();
+            btnResultOK = new Button();
             txtRawBusValue = new TextBox();
             lbRawBusValue = new Label();
             cbPlusRegister = new CheckBox();
@@ -265,7 +269,6 @@
             txtEngUnit.ReadOnly = true;
             txtEngUnit.Size = new Size(82, 27);
             txtEngUnit.TabIndex = 30;
-            // 
             // menuStrip1
             // 
             menuStrip1.ImageScalingSize = new Size(20, 20);
@@ -334,6 +337,48 @@
             btnStopSimulator.UseVisualStyleBackColor = true;
             btnStopSimulator.Click += btnStopSimulator_Click;
             // 
+            // label2
+            // 
+            label2.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            label2.AutoSize = true;
+            label2.Location = new Point(298, 327);
+            label2.Name = "label2";
+            label2.Size = new Size(0, 20);
+            label2.TabIndex = 36;
+            // 
+            // label3
+            // 
+            label3.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            label3.AutoSize = true;
+            label3.Location = new Point(277, 327);
+            label3.Name = "label3";
+            label3.Size = new Size(86, 20);
+            label3.TabIndex = 37;
+            label3.Text = "Test Result :";
+            // 
+            // btnResultNotOK
+            // 
+            btnResultNotOK.BackColor = SystemColors.Control;
+            btnResultNotOK.ForeColor = Color.Red;
+            btnResultNotOK.Location = new Point(387, 362);
+            btnResultNotOK.Name = "btnResultNotOK";
+            btnResultNotOK.Size = new Size(94, 29);
+            btnResultNotOK.TabIndex = 38;
+            btnResultNotOK.Text = "X";
+            btnResultNotOK.UseVisualStyleBackColor = false;
+            btnResultNotOK.Click += btnResultNotOKClick;
+            // 
+            // btnResultOK
+            // 
+            btnResultOK.BackColor = SystemColors.Control;
+            btnResultOK.ForeColor = Color.LawnGreen;
+            btnResultOK.Location = new Point(277, 362);
+            btnResultOK.Name = "btnResultOK";
+            btnResultOK.Size = new Size(94, 29);
+            btnResultOK.TabIndex = 39;
+            btnResultOK.Text = "✔";
+            btnResultOK.UseVisualStyleBackColor = false;
+            btnResultOK.Click += btnResultOKClick;
             // txtRawBusValue
             // 
             txtRawBusValue.Anchor = AnchorStyles.Top | AnchorStyles.Right;
@@ -377,6 +422,10 @@
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1258, 891);
+            Controls.Add(btnResultOK);
+            Controls.Add(btnResultNotOK);
+            Controls.Add(label3);
+            Controls.Add(label2);
             Controls.Add(cbMinusRegister);
             Controls.Add(cbPlusRegister);
             Controls.Add(lbRawBusValue);
@@ -446,6 +495,10 @@
         private ToolStripMenuItem settingsToolStripMenuItem;
         private Button btnStartSimulator;
         private Button btnStopSimulator;
+        private Label label2;
+        private Label label3;
+        private Button btnResultNotOK;
+        private Button btnResultOK;
         private TextBox txtRawBusValue;
         private Label lbRawBusValue;
         private CheckBox cbPlusRegister;
