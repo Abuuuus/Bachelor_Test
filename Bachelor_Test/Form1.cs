@@ -4,11 +4,14 @@ using System.IO.Ports;
 using Modbus.Device;
 using Modbus.Data;
 using System.Data.OleDb;
+using System.Collections.ObjectModel;
+using System.Text;
 
 namespace Bachelor_Test
 {
     public partial class Form1 : Form
     {
+        //Data types needed across the class
         private CancellationTokenSource cts;
         private CancellationTokenSource cts2;
         private DataStore datastore = DataStoreFactory.CreateDefaultDataStore();
@@ -26,6 +29,7 @@ namespace Bachelor_Test
         private List<string> serialLineHigh = new List<string>();
         private List<string> serialLineName = new List<string>();
         private List<string> verifiedTest = new List<string>(); // Verifing if tag is OK or not OK under testing. 
+        private List<Color> tagColors = new List<Color>(); //Storing the color based on IO list
         private byte slaveID = 1; //Default slaveID 1
         private string comPort = ""; //Gets assigned in the GUI
         private int baudRate, dataBits;
@@ -42,6 +46,7 @@ namespace Bachelor_Test
             StartPosition = FormStartPosition.CenterScreen;
         }
 
+        //Makes sure holding register value is changed when toggle is pressed
         private void btnChangeHolding_Click(object sender, EventArgs e)
         {
             try
@@ -83,11 +88,11 @@ namespace Bachelor_Test
                 int rawData;
                 int sendRawData;
 
-                // Ensure the TCP Modbus Slave is initialize
 
-                if (tcpSlave != null && tcpSlave.DataStore != null)
+
+                if (tcpSlave != null && tcpSlave.DataStore != null) //Ensures that the TCP server is initialized
                 {
-                    if (registerAdressRaw.Contains("."))
+                    if (registerAdressRaw.Contains(".")) //If dotted extracts the number after the dot
                     {
                         int dotAdress = int.Parse(registerAdressRaw.Substring(registerAdressRaw.IndexOf(".") + 1));
                         BittCounter bittCounter = new BittCounter(dotAdress, adr);
@@ -112,11 +117,10 @@ namespace Bachelor_Test
                     }
 
                     tcpSlave.DataStore.HoldingRegisters[startAddress] = uSendRawData;
-                    MessageBox.Show($"TCP: {uSendRawData}");
                 }
 
-                // Ensure the RTU Modbus Slave is initialized
-                if (rtuSlave != null && rtuSlave.DataStore != null)
+
+                if (rtuSlave != null && rtuSlave.DataStore != null)  // Ensure the RTU Modbus Slave is initialized
                 {
                     if (registerAdressRaw.Contains("."))
                     {
@@ -124,7 +128,7 @@ namespace Bachelor_Test
                         BittCounter bittCounter = new BittCounter(dotAdress, adr);
                         uSendRawData = bittCounter.BittMassage;
                     }
-                    else if (adr < 0)
+                    else if (adr < 0) //Calculation if negative number is to be saved
                     {
                         Scale = serialLow / sensorLow;
                         rawData = Scale * adr;
@@ -139,7 +143,6 @@ namespace Bachelor_Test
                     }
 
                     rtuSlave.DataStore.HoldingRegisters[startAddress] = uSendRawData;
-                    MessageBox.Show($"RTU: {uSendRawData}");
                 }
             }
             catch (FormatException)
@@ -158,7 +161,7 @@ namespace Bachelor_Test
 
 
 
-        private void connectToDatabase(string filepath)
+        private void connectToDatabase(string filepath) //Method for extracting selected IO list
         {
             string querystring = "SELECT Io_List.S_Serial_Line_Name, Io_List.S_Instrument_Tag, Io_List.S_Description, Io_List.S_Serial_Line_Address, Io_List.S_Eng_Units, Io_List.S_Eng_Range_Low, Io_List.S_Eng_Range_High, Io_List.S_Serial_Line_Range_Low, Io_List.S_Serial_Line_Range_High, Io_List.W_Citect_Test\r\nFROM Io_List\r\nWHERE (((Io_List.S_Serial_Line_Name) Is Not Null));";
             using OleDbConnection connection = new OleDbConnection($"Provider=Microsoft.ACE.OLEDB.12.0;Data Source={filepath};Persist Security Info=False;");
@@ -168,6 +171,7 @@ namespace Bachelor_Test
             connection.Open();
             using OleDbDataReader reader = command.ExecuteReader();
             cmd = new OleDbCommand(verrifiedQuerystring, connection);
+            //Puts the IO list into variables saved in program 
             while (reader.Read())
             {
                 try
@@ -177,6 +181,20 @@ namespace Bachelor_Test
                     description.Add(reader.GetString(2));
                     serialAdress.Add(reader.GetString(3));
                     verifiedTest.Add(reader.IsDBNull(9) ? "" : reader.GetString(9));
+                    if (verifiedTest.Last().ToString() == "OK")
+                    {
+                        tagColors.Add(Color.LimeGreen);
+                    }
+
+                    else if (verifiedTest.Last().ToString() == "Not OK")
+                    {
+                        tagColors.Add(Color.Red);
+                    }
+
+                    else
+                    {
+                        tagColors.Add(Color.Silver);
+                    }
 
                     if (serialAdress.Last().Contains("."))
                     {
@@ -197,7 +215,6 @@ namespace Bachelor_Test
 
 
                     }
-
 
                 }
                 catch (Exception e)
@@ -221,50 +238,17 @@ namespace Bachelor_Test
 
         }
 
-        private void UpdateStatus(params object[] messages)
-        {
-            string message = string.Join(", ", messages);
 
-            if (InvokeRequired)
-            {
-                Invoke(new Action(() => listBoxSignals.Items.Add(message)));
-            }
-            else
-            {
-                listBoxSignals.Items.Add(message);
-            }
-        }
-
-        private void listBoxSignals_MouseDoubleClick(object sender, MouseEventArgs e)
+        private void comboBoxSerialLine_SelectedIndexChanged(object sender, EventArgs e) //Puts every signal under specified serial line in the listview
         {
-            string tagHighLighted = listBoxSignals.Text;
-            int position = tag.IndexOf(tagHighLighted); // Assuming tagList is the list containing all tags
-            if (position != -1)
-            {
-                txtAdress.Text = serialAdress[position];
-                txtDescription.Text = description[position];
-                txtEngHigh.Text = engRangeHigh[position];
-                txtEngLow.Text = engRangeLow[position];
-                txtSerialHigh.Text = serialLineHigh[position];
-                txtSerialLow.Text = serialLineLow[position];
-                txtTag.Text = tagHighLighted;
-                txtEngUnit.Text = engUnit[position];
-            }
-            else
-            {
-                MessageBox.Show("Tag not found in the list.");
-            }
-        }
-
-        private void comboBoxSerialLine_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            listBoxSignals.Items.Clear();
+            listViewSignals.Items.Clear();
             string serialLineSelected = comboBoxSerialLine.Text;
             for (int i = 0; i < tag.Count; i++)
             {
                 if (serialLineName[i] == serialLineSelected)
                 {
-                    listBoxSignals.Items.Add(tag[i]);
+                    listViewSignals.Items.Add(tag[i]).BackColor = tagColors[i];
+
                 }
             }
         }
@@ -424,6 +408,7 @@ namespace Bachelor_Test
                 {
                     MessageBox.Show($"Error: {ex.Message}");
                 }
+                MessageBox.Show(tcpSlave.Masters.ToString());
             }
         }
 
@@ -495,7 +480,6 @@ namespace Bachelor_Test
         {
             string newValueOK = "Not OK";
             string selectedSerialAddress = txtAdress.Text;
-            MessageBox.Show($"Du prøver å oppdatere raden med: {selectedSerialAddress}");
 
             if (string.IsNullOrEmpty(selectedSerialAddress))
             {
@@ -525,8 +509,12 @@ namespace Bachelor_Test
                     connection.Open();
                     int rowsAffected = cmd.ExecuteNonQuery();
 
-                    // Vis antall rader som ble oppdatert
-                    MessageBox.Show($"Antall rader oppdatert: {rowsAffected}");
+                    //Create the red background color if signal is NOTOK
+                    ListViewItem selectedItem = listViewSignals.SelectedItems[0];
+                    selectedItem.BackColor = Color.Red;
+                    int index = serialAdress.IndexOf(selectedSerialAddress);
+                    tagColors[index] = Color.Red;
+
                 }
 
 
@@ -537,7 +525,6 @@ namespace Bachelor_Test
         {
             string newValueOK = "OK";
             string selectedSerialAddress = txtAdress.Text;
-            MessageBox.Show($"Du prøver å oppdatere raden med: {selectedSerialAddress}");
 
             if (string.IsNullOrEmpty(selectedSerialAddress))
             {
@@ -567,8 +554,11 @@ namespace Bachelor_Test
                     connection.Open();
                     int rowsAffected = cmd.ExecuteNonQuery();
 
-                    // Vis antall rader som ble oppdatert
-                    MessageBox.Show($"Antall rader oppdatert: {rowsAffected}");
+                    //Create the green background color if signal is OK
+                    ListViewItem selectedItem = listViewSignals.SelectedItems[0];
+                    selectedItem.BackColor = Color.LimeGreen;
+                    int index = serialAdress.IndexOf(selectedSerialAddress);
+                    tagColors[index] = Color.LimeGreen;
                 }
 
 
@@ -615,6 +605,33 @@ namespace Bachelor_Test
 
         private void Help_Click(object sender, EventArgs e)
         {
+
+        }
+
+        private void listViewSignals_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            if (listViewSignals.SelectedItems.Count > 0)
+            {
+                ListViewItem selectedItem = listViewSignals.SelectedItems[0];
+                string tagHighLighted = selectedItem.Text; // Assuming the tag is in the first column
+
+                int position = tag.IndexOf(tagHighLighted);
+                if (position != -1)
+                {
+                    txtAdress.Text = serialAdress[position];
+                    txtDescription.Text = description[position];
+                    txtEngHigh.Text = engRangeHigh[position];
+                    txtEngLow.Text = engRangeLow[position];
+                    txtSerialHigh.Text = serialLineHigh[position];
+                    txtSerialLow.Text = serialLineLow[position];
+                    txtTag.Text = tagHighLighted;
+                    txtEngUnit.Text = engUnit[position];
+                }
+                else
+                {
+                    MessageBox.Show("Tag not found in the list.");
+                }
+            }
 
         }
     }

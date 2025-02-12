@@ -8,6 +8,7 @@ namespace Bachelor_Test
 {
     internal class BittCounter
     {
+        //This class makes calculations based on the number of the bit that needs changing
         public ushort BittMassage { get; private set; }
 
         public BittCounter(int dotNumber, int Value)
