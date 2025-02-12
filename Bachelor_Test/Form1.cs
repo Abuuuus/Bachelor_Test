@@ -12,6 +12,7 @@ using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Collections.ObjectModel;
 using System.Text;
+using System.Timers;
 
 namespace Bachelor_Test
 {
@@ -47,8 +48,13 @@ namespace Bachelor_Test
         private bool comRtuOK = false;
         private bool comTcpOK = false;
         private int watchDog = 0;
-       
-        
+        private static DateTime _lastRequestTime;
+        private static System.Windows.Forms.Timer _watchdogTimer;
+        private bool _rtuRequestReceived = false;
+        private bool _tcpRequestReceived = false;
+        private bool isAlarmDisplayed = false;
+
+
 
 
         public Form1()
@@ -298,11 +304,17 @@ namespace Bachelor_Test
                 string localIPAddress = comSettings.LocalIPAddress;
                 // Split the IP address into its components
                 string[] ipParts = localIPAddress.Split('.');
-
-                // Convert each part to a byte and store it in the array
-                for (int i = 0; i < 4; i++)
+                try
                 {
-                    serverIpAdress[i] = byte.Parse(ipParts[i]);
+                    // Convert each part to a byte and store it in the array
+                    for (int i = 0; i < 4; i++)
+                    {
+                        serverIpAdress[i] = byte.Parse(ipParts[i]);
+                    }
+                }
+                catch
+                {
+                    //Do nothing
                 }
 
             }
@@ -421,7 +433,7 @@ namespace Bachelor_Test
                 {
                     MessageBox.Show($"Error: {ex.Message}");
                 }
-                WatchDog();
+                InitializeWatchdog();
             }
         }
 
@@ -616,12 +628,6 @@ namespace Bachelor_Test
             }
         }
 
-
-
-
-
-
-
         private void HelpUserManualClick(object sender, EventArgs e)
         {
             string pdfPath = Path.Combine(Application.StartupPath, "FullstendigCV_Automasjonsingeniør.pdf");
@@ -636,32 +642,6 @@ namespace Bachelor_Test
             }
         }
 
-        private async void WatchDog() 
-        {
-            
-            int watchDogCounter = 0;
-            while (rtuSlave.ModbusSerialMaster != null && tcpSlave !=null)
-            {
-                try 
-                {
-                    ushort[] response = ;
-
-                }
-                catch 
-                { 
-                
-                
-                }
-                watchDogCounter++;
-                await Task.Delay(1000);
-                txtWatchDog.Text = watchDogCounter.ToString();
-                
-
-            }
-
-
-
-        }
 
         private void listViewSignals_MouseDoubleClick(object sender, MouseEventArgs e)
         {
@@ -689,5 +669,71 @@ namespace Bachelor_Test
             }
 
         }
+
+        // Method to initialize and start the watchdog timer
+        private void InitializeWatchdog()
+        {
+            // Subscribe to the ModbusSlaveRequestReceived event for both TCP and RTU slaves
+            rtuSlave.ModbusSlaveRequestReceived += OnRtuModbusSlaveRequestReceived;
+            tcpSlave.ModbusSlaveRequestReceived += OnTcpModbusSlaveRequestReceived;
+
+            // Initialize the watchdog timer
+            _watchdogTimer = new System.Windows.Forms.Timer();
+            _watchdogTimer.Interval = 200; // Set the interval to 200 milliseconds
+            _watchdogTimer.Tick += WatchdogTimer_Tick;
+            _watchdogTimer.Start();
+        }
+
+        // Event handler for RTU Modbus slave requests
+        private void OnRtuModbusSlaveRequestReceived(object sender, ModbusSlaveRequestEventArgs e)
+        {
+            // Set the flag to indicate an RTU request has been received
+            _rtuRequestReceived = true;
+        }
+
+        // Event handler for TCP Modbus slave requests
+        private void OnTcpModbusSlaveRequestReceived(object sender, ModbusSlaveRequestEventArgs e)
+        {
+            // Set the flag to indicate a TCP request has been received
+            _tcpRequestReceived = true;
+        }
+
+        // Event handler for the watchdog timer's Tick event
+        private void WatchdogTimer_Tick(object sender, EventArgs e)
+        {
+            if (_rtuRequestReceived && _tcpRequestReceived)
+            {
+                // Both RTU and TCP requests have been received within the interval
+
+                // Increment the watchdog counter
+                watchDog++;
+
+                // Update the TextBox with the current watchdog counter
+                if (txtWatchDog.InvokeRequired)
+                {
+                    txtWatchDog.Invoke(new Action(() =>
+                    {
+                        txtWatchDog.Text = watchDog.ToString();
+                    }));
+                }
+                else
+                {
+                    txtWatchDog.Text = watchDog.ToString();
+                }
+
+                // Reset the alarm flag
+                isAlarmDisplayed = false;
+            }
+            else
+            {
+
+            }
+
+            // Reset the flags for the next interval
+            _rtuRequestReceived = false;
+            _tcpRequestReceived = false;
+        }
+
     }
 }
+
