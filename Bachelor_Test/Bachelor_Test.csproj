@@ -9,6 +9,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="FullstendigCV_Automasjonsingeniør.pdf" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="FullstendigCV_Automasjonsingeniør.pdf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="NModbus4" Version="2.1.0" />
     <PackageReference Include="System.Data.OleDb" Version="9.0.1" />
     <PackageReference Include="System.IO.Ports" Version="9.0.1" />

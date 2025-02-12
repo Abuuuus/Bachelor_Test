@@ -4,6 +4,12 @@ using System.IO.Ports;
 using Modbus.Device;
 using Modbus.Data;
 using System.Data.OleDb;
+using System.Windows.Forms;
+using System;
+using System.IO;
+using System.Windows.Forms;
+using System.Diagnostics;
+using System.Linq.Expressions;
 
 namespace Bachelor_Test
 {
@@ -34,6 +40,11 @@ namespace Bachelor_Test
         private byte[] serverIpAdress = new byte[4];
         private OleDbCommand cmd;
         private string stringPath;
+        private bool comRtuOK = false;
+        private bool comTcpOK = false;
+        private int watchDog = 0;
+       
+        
 
 
         public Form1()
@@ -87,6 +98,7 @@ namespace Bachelor_Test
 
                 if (tcpSlave != null && tcpSlave.DataStore != null)
                 {
+                    
                     if (registerAdressRaw.Contains("."))
                     {
                         int dotAdress = int.Parse(registerAdressRaw.Substring(registerAdressRaw.IndexOf(".") + 1));
@@ -118,6 +130,7 @@ namespace Bachelor_Test
                 // Ensure the RTU Modbus Slave is initialized
                 if (rtuSlave != null && rtuSlave.DataStore != null)
                 {
+                    
                     if (registerAdressRaw.Contains("."))
                     {
                         int dotAdress = int.Parse(registerAdressRaw.Substring(registerAdressRaw.IndexOf(".") + 1));
@@ -377,6 +390,7 @@ namespace Bachelor_Test
                 {
                     MessageBox.Show($"Error: {ex.Message}");
                 }
+
             }
 
             // Starting RTU slave
@@ -424,6 +438,7 @@ namespace Bachelor_Test
                 {
                     MessageBox.Show($"Error: {ex.Message}");
                 }
+                WatchDog();
             }
         }
 
@@ -613,8 +628,50 @@ namespace Bachelor_Test
             }
         }
 
-        private void Help_Click(object sender, EventArgs e)
+
+
+
+
+
+
+        private void HelpUserManualClick(object sender, EventArgs e)
         {
+            string pdfPath = Path.Combine(Application.StartupPath, "FullstendigCV_Automasjonsingeniør.pdf");
+
+            if (File.Exists(pdfPath))
+            {
+                Process.Start(new ProcessStartInfo(pdfPath) { UseShellExecute = true });
+            }
+            else
+            {
+                MessageBox.Show("Brukermanualen ble ikke funnet!", "Feil", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private async void WatchDog() 
+        {
+            
+            int watchDogCounter = 0;
+            while (rtuSlave.ModbusSerialMaster != null && tcpSlave !=null)
+            {
+                try 
+                {
+                    ushort[] response = ;
+
+                }
+                catch 
+                { 
+                
+                
+                }
+                watchDogCounter++;
+                await Task.Delay(1000);
+                txtWatchDog.Text = watchDogCounter.ToString();
+                
+
+            }
+
+
 
         }
     }

@@ -56,6 +56,8 @@
             exitToolStripMenuItem = new ToolStripMenuItem();
             toolStripCommSettings = new ToolStripMenuItem();
             settingsToolStripMenuItem = new ToolStripMenuItem();
+            helpToolStripMenuItem = new ToolStripMenuItem();
+            userManualToolStripMenuItem = new ToolStripMenuItem();
             btnStartSimulator = new Button();
             btnStopSimulator = new Button();
             label2 = new Label();
@@ -66,7 +68,8 @@
             lbRawBusValue = new Label();
             cbPlusRegister = new CheckBox();
             cbMinusRegister = new CheckBox();
-            helpToolStripMenuItem = new ToolStripMenuItem();
+            label1 = new Label();
+            txtWatchDog = new TextBox();
             menuStrip1.SuspendLayout();
             SuspendLayout();
             // 
@@ -292,14 +295,14 @@
             // importIOListToolStripMenuItem
             // 
             importIOListToolStripMenuItem.Name = "importIOListToolStripMenuItem";
-            importIOListToolStripMenuItem.Size = new Size(224, 26);
+            importIOListToolStripMenuItem.Size = new Size(184, 26);
             importIOListToolStripMenuItem.Text = "Import IO-List";
             importIOListToolStripMenuItem.Click += importIOListToolStripMenuItem_Click;
             // 
             // exitToolStripMenuItem
             // 
             exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            exitToolStripMenuItem.Size = new Size(224, 26);
+            exitToolStripMenuItem.Size = new Size(184, 26);
             exitToolStripMenuItem.Text = "Exit";
             exitToolStripMenuItem.Click += exitToolStripMenuItem_Click;
             // 
@@ -313,9 +316,23 @@
             // settingsToolStripMenuItem
             // 
             settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
-            settingsToolStripMenuItem.Size = new Size(224, 26);
+            settingsToolStripMenuItem.Size = new Size(145, 26);
             settingsToolStripMenuItem.Text = "Settings";
             settingsToolStripMenuItem.Click += settingsToolStripMenuItem_Click;
+            // 
+            // helpToolStripMenuItem
+            // 
+            helpToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { userManualToolStripMenuItem });
+            helpToolStripMenuItem.Name = "helpToolStripMenuItem";
+            helpToolStripMenuItem.Size = new Size(55, 24);
+            helpToolStripMenuItem.Text = "Help";
+            // 
+            // userManualToolStripMenuItem
+            // 
+            userManualToolStripMenuItem.Name = "userManualToolStripMenuItem";
+            userManualToolStripMenuItem.Size = new Size(174, 26);
+            userManualToolStripMenuItem.Text = "User manual";
+            userManualToolStripMenuItem.Click += HelpUserManualClick;
             // 
             // btnStartSimulator
             // 
@@ -420,18 +437,32 @@
             cbMinusRegister.Text = "-1";
             cbMinusRegister.UseVisualStyleBackColor = true;
             // 
-            // helpToolStripMenuItem
+            // label1
             // 
-            helpToolStripMenuItem.Name = "helpToolStripMenuItem";
-            helpToolStripMenuItem.Size = new Size(55, 24);
-            helpToolStripMenuItem.Text = "Help";
-            helpToolStripMenuItem.Click += Help_Click;
+            label1.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            label1.AutoSize = true;
+            label1.Location = new Point(277, 449);
+            label1.Name = "label1";
+            label1.Size = new Size(136, 20);
+            label1.TabIndex = 40;
+            label1.Text = "WatchDog counter:";
+            // 
+            // txtWatchDog
+            // 
+            txtWatchDog.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            txtWatchDog.Location = new Point(277, 482);
+            txtWatchDog.Name = "txtWatchDog";
+            txtWatchDog.ReadOnly = true;
+            txtWatchDog.Size = new Size(125, 27);
+            txtWatchDog.TabIndex = 41;
             // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1258, 891);
+            Controls.Add(txtWatchDog);
+            Controls.Add(label1);
             Controls.Add(btnResultOK);
             Controls.Add(btnResultNotOK);
             Controls.Add(label3);
@@ -514,5 +545,8 @@
         private CheckBox cbPlusRegister;
         private CheckBox cbMinusRegister;
         private ToolStripMenuItem helpToolStripMenuItem;
+        private ToolStripMenuItem userManualToolStripMenuItem;
+        private Label label1;
+        private TextBox txtWatchDog;
     }
 }
