@@ -451,6 +451,7 @@
             txtWatchDog.ReadOnly = true;
             txtWatchDog.Size = new Size(125, 27);
             txtWatchDog.TabIndex = 41;
+            // 
             // listViewSignals
             // 
             listViewSignals.BackColor = Color.Silver;
@@ -472,9 +473,9 @@
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new Size(942, 573);
             Controls.Add(txtWatchDog);
             Controls.Add(label1);
-            ClientSize = new Size(942, 573);
             Controls.Add(listViewSignals);
             Controls.Add(btnResultOK);
             Controls.Add(btnResultNotOK);
