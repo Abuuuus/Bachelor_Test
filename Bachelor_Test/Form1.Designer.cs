@@ -66,6 +66,7 @@
             lbRawBusValue = new Label();
             cbPlusRegister = new CheckBox();
             cbMinusRegister = new CheckBox();
+            helpToolStripMenuItem = new ToolStripMenuItem();
             menuStrip1.SuspendLayout();
             SuspendLayout();
             // 
@@ -269,10 +270,11 @@
             txtEngUnit.ReadOnly = true;
             txtEngUnit.Size = new Size(82, 27);
             txtEngUnit.TabIndex = 30;
+            // 
             // menuStrip1
             // 
             menuStrip1.ImageScalingSize = new Size(20, 20);
-            menuStrip1.Items.AddRange(new ToolStripItem[] { toolStripFile, toolStripCommSettings });
+            menuStrip1.Items.AddRange(new ToolStripItem[] { toolStripFile, toolStripCommSettings, helpToolStripMenuItem });
             menuStrip1.Location = new Point(0, 0);
             menuStrip1.Name = "menuStrip1";
             menuStrip1.Padding = new Padding(6, 3, 0, 3);
@@ -290,14 +292,14 @@
             // importIOListToolStripMenuItem
             // 
             importIOListToolStripMenuItem.Name = "importIOListToolStripMenuItem";
-            importIOListToolStripMenuItem.Size = new Size(184, 26);
+            importIOListToolStripMenuItem.Size = new Size(224, 26);
             importIOListToolStripMenuItem.Text = "Import IO-List";
             importIOListToolStripMenuItem.Click += importIOListToolStripMenuItem_Click;
             // 
             // exitToolStripMenuItem
             // 
             exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            exitToolStripMenuItem.Size = new Size(184, 26);
+            exitToolStripMenuItem.Size = new Size(224, 26);
             exitToolStripMenuItem.Text = "Exit";
             exitToolStripMenuItem.Click += exitToolStripMenuItem_Click;
             // 
@@ -311,7 +313,7 @@
             // settingsToolStripMenuItem
             // 
             settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
-            settingsToolStripMenuItem.Size = new Size(145, 26);
+            settingsToolStripMenuItem.Size = new Size(224, 26);
             settingsToolStripMenuItem.Text = "Settings";
             settingsToolStripMenuItem.Click += settingsToolStripMenuItem_Click;
             // 
@@ -379,6 +381,7 @@
             btnResultOK.Text = "✔";
             btnResultOK.UseVisualStyleBackColor = false;
             btnResultOK.Click += btnResultOKClick;
+            // 
             // txtRawBusValue
             // 
             txtRawBusValue.Anchor = AnchorStyles.Top | AnchorStyles.Right;
@@ -416,6 +419,13 @@
             cbMinusRegister.TabIndex = 39;
             cbMinusRegister.Text = "-1";
             cbMinusRegister.UseVisualStyleBackColor = true;
+            // 
+            // helpToolStripMenuItem
+            // 
+            helpToolStripMenuItem.Name = "helpToolStripMenuItem";
+            helpToolStripMenuItem.Size = new Size(55, 24);
+            helpToolStripMenuItem.Text = "Help";
+            helpToolStripMenuItem.Click += Help_Click;
             // 
             // Form1
             // 
@@ -503,5 +513,6 @@
         private Label lbRawBusValue;
         private CheckBox cbPlusRegister;
         private CheckBox cbMinusRegister;
+        private ToolStripMenuItem helpToolStripMenuItem;
     }
 }

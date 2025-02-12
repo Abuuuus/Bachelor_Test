@@ -167,7 +167,7 @@ namespace Bachelor_Test
 
             connection.Open();
             using OleDbDataReader reader = command.ExecuteReader();
-            cmd = new OleDbCommand(verrifiedQuerystring,connection);
+            cmd = new OleDbCommand(verrifiedQuerystring, connection);
             while (reader.Read())
             {
                 try
@@ -176,7 +176,7 @@ namespace Bachelor_Test
                     tag.Add(reader.GetString(1));
                     description.Add(reader.GetString(2));
                     serialAdress.Add(reader.GetString(3));
-                    verifiedTest.Add( reader.IsDBNull(9) ? "" : reader.GetString(9));
+                    verifiedTest.Add(reader.IsDBNull(9) ? "" : reader.GetString(9));
 
                     if (serialAdress.Last().Contains("."))
                     {
@@ -278,13 +278,13 @@ namespace Bachelor_Test
                 stringPath = FileDialogDB.FileName;
                 connectToDatabase(stringPath);
             }
-            
+
         }
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
             this.Close();
-            
+
         }
 
         private void settingsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -493,14 +493,9 @@ namespace Bachelor_Test
 
         private void btnResultNotOKClick(object sender, EventArgs e)
         {
-
-        }
-
-        private void btnResultOKClick(object sender, EventArgs e)
-        {
-            string newValueOK = "OK";
+            string newValueOK = "Not OK";
             string selectedSerialAddress = txtAdress.Text;
-            MessageBox.Show($"Du pr�ver � oppdatere raden med: {selectedSerialAddress}");
+            MessageBox.Show($"Du prøver å oppdatere raden med: {selectedSerialAddress}");
 
             if (string.IsNullOrEmpty(selectedSerialAddress))
             {
@@ -512,7 +507,7 @@ namespace Bachelor_Test
                 string filepath = stringPath;  // Hent filbanen valgt av brukeren
                 if (string.IsNullOrEmpty(stringPath))
                 {
-                    MessageBox.Show("Filbane er ikke satt! Velg en database f�rst.");
+                    MessageBox.Show("Filbane er ikke satt! Velg en database først.");
                     return;
                 }
                 string updateQuery = "UPDATE Io_List SET W_Citect_Test = @newValue WHERE S_Serial_Line_Address = @serialLineAddress;";
@@ -537,8 +532,50 @@ namespace Bachelor_Test
 
             }
         }
-               
-            
+
+        private void btnResultOKClick(object sender, EventArgs e)
+        {
+            string newValueOK = "OK";
+            string selectedSerialAddress = txtAdress.Text;
+            MessageBox.Show($"Du prøver å oppdatere raden med: {selectedSerialAddress}");
+
+            if (string.IsNullOrEmpty(selectedSerialAddress))
+            {
+                MessageBox.Show("Ingen rad valgt!");
+
+            }
+            else
+            {
+                string filepath = stringPath;  // Hent filbanen valgt av brukeren
+                if (string.IsNullOrEmpty(stringPath))
+                {
+                    MessageBox.Show("Filbane er ikke satt! Velg en database først.");
+                    return;
+                }
+                string updateQuery = "UPDATE Io_List SET W_Citect_Test = @newValue WHERE S_Serial_Line_Address = @serialLineAddress;";
+
+                using (OleDbConnection connection = new OleDbConnection($"Provider=Microsoft.ACE.OLEDB.12.0;Data Source={filepath};Persist Security Info=False;"))
+                using (OleDbCommand cmd = new OleDbCommand(updateQuery, connection))
+                {
+                    // Legg til parameteren for den nye verdien
+                    cmd.Parameters.AddWithValue("@newValue", newValueOK);
+
+                    // Legg til parameteren for den valgte raden
+                    cmd.Parameters.AddWithValue("@serialLineAddress", selectedSerialAddress);
+
+                    // �pne forbindelsen og kj�r sp�rringen
+                    connection.Open();
+                    int rowsAffected = cmd.ExecuteNonQuery();
+
+                    // Vis antall rader som ble oppdatert
+                    MessageBox.Show($"Antall rader oppdatert: {rowsAffected}");
+                }
+
+
+            }
+        }
+
+
         private void txtHoldingValue_TextChanged(object sender, EventArgs e)
         {
             int busScaleLow;
@@ -574,6 +611,11 @@ namespace Bachelor_Test
                     txtRawBusValue.Text = Convert.ToString(rawBusValue);
                 }
             }
+        }
+
+        private void Help_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
