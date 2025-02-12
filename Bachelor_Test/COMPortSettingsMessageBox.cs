@@ -32,28 +32,24 @@ namespace Bachelor_Test
 
         public COMPortSettingsMessageBox()
         {
-            // Set the title of the form
+            // Custom form for the settings page configured here
             this.Text = "Settings";
 
-            // Create and configure the Label for Slave ID
             Label slaveIdLabel = new Label();
             slaveIdLabel.Text = "Slave ID:";
             slaveIdLabel.Location = new Point(10, 10);
             slaveIdLabel.AutoSize = true;
 
-            // Create and configure the TextBox for Slave ID
             slaveIdTextBox = new TextBox();
             slaveIdTextBox.Location = new Point(90, 10);
             slaveIdTextBox.Width = 200;
             slaveIdTextBox.Text = "1"; // Default value
 
-            // Create and configure the Label for COM Port
             Label comPortLabel = new Label();
             comPortLabel.Text = "COM Port:";
             comPortLabel.Location = new Point(10, 40);
             comPortLabel.AutoSize = true;
 
-            // Create and configure the ComboBox for COM Port selection
             comPortComboBox = new ComboBox();
             comPortComboBox.Location = new Point(90, 40);
             comPortComboBox.Width = 200;
@@ -64,13 +60,11 @@ namespace Bachelor_Test
                 comPortComboBox.SelectedIndex = 0; // Default to the first available COM port
             }
 
-            // Create and configure the Label for Baud Rate
             Label baudRateLabel = new Label();
             baudRateLabel.Text = "Baud Rate:";
             baudRateLabel.Location = new Point(10, 70);
             baudRateLabel.AutoSize = true;
 
-            // Create and configure the ComboBox for Baud Rate selection
             baudRateComboBox = new ComboBox();
             baudRateComboBox.Location = new Point(90, 70);
             baudRateComboBox.Width = 200;
@@ -78,13 +72,11 @@ namespace Bachelor_Test
             baudRateComboBox.Items.AddRange(new object[] { "300", "600", "1200", "2400", "4800", "9600", "19200", "38400", "57600", "115200" });
             baudRateComboBox.SelectedItem = "9600"; // Default value
 
-            // Create and configure the Label for Data Bits
             Label dataBitsLabel = new Label();
             dataBitsLabel.Text = "Data Bits:";
             dataBitsLabel.Location = new Point(10, 100);
             dataBitsLabel.AutoSize = true;
 
-            // Create and configure the ComboBox for Data Bits selection
             dataBitsComboBox = new ComboBox();
             dataBitsComboBox.Location = new Point(90, 100);
             dataBitsComboBox.Width = 200;
@@ -92,13 +84,11 @@ namespace Bachelor_Test
             dataBitsComboBox.Items.AddRange(new object[] { "7", "8" });
             dataBitsComboBox.SelectedItem = "8"; // Default value
 
-            // Create and configure the Label for Stop Bits
             Label stopBitsLabel = new Label();
             stopBitsLabel.Text = "Stop Bits:";
             stopBitsLabel.Location = new Point(10, 130);
             stopBitsLabel.AutoSize = true;
 
-            // Create and configure the ComboBox for Stop Bits selection
             stopBitsComboBox = new ComboBox();
             stopBitsComboBox.Location = new Point(90, 130);
             stopBitsComboBox.Width = 200;
@@ -106,13 +96,11 @@ namespace Bachelor_Test
             stopBitsComboBox.Items.AddRange(new object[] { "1", "2" });
             stopBitsComboBox.SelectedItem = "1"; // Default value
 
-            // Create and configure the Label for Parity
             Label parityLabel = new Label();
             parityLabel.Text = "Parity:";
             parityLabel.Location = new Point(10, 160);
             parityLabel.AutoSize = true;
 
-            // Create and configure the ComboBox for Parity selection
             parityComboBox = new ComboBox();
             parityComboBox.Location = new Point(90, 160);
             parityComboBox.Width = 200;
@@ -120,38 +108,37 @@ namespace Bachelor_Test
             parityComboBox.Items.AddRange(Enum.GetNames(typeof(Parity)));
             parityComboBox.SelectedItem = "None"; // Default value
 
-            // Create and configure the Label for IP Address
             Label ipAddressLabel = new Label();
             ipAddressLabel.Text = "Local IP Address:";
             ipAddressLabel.Location = new Point(10, 200);
             ipAddressLabel.AutoSize = true;
 
-            // Create and configure the TextBox for IP Address
             ipAddressTextBox = new TextBox();
             ipAddressTextBox.Location = new Point(130, 200);
             ipAddressTextBox.Width = 160;
             ipAddressTextBox.ReadOnly = true;
-            ipAddressTextBox.Text = GetLocalIPAddress(); // Default value
+            ipAddressTextBox.Text = GetLocalIPAddress(); // Gets the localIPadress from the method
 
-            // Create and configure the Label for IP Address
             Label newIpAddressLabel = new Label();
             newIpAddressLabel.Text = "Set New IP:";
             newIpAddressLabel.Location = new Point(10, 240);
             newIpAddressLabel.AutoSize = true;
 
-            // Create and configure the TextBox for IP Address
+            Label newIpAddressLabelOptional = new Label();
+            stopBitsLabel.Text = "Optional if no local address found";
+            stopBitsLabel.Location = new Point(30, 265);
+            stopBitsLabel.AutoSize = true;
+
             newIpAddressTextBox = new TextBox();
             newIpAddressTextBox.Location = new Point(100, 240);
             newIpAddressTextBox.Width = 160; 
 
-            // Create and configure the Button
             Button okButton = new Button();
             okButton.Text = "OK";
             okButton.Height = 30;
             okButton.Location = new Point(300, 200);
             okButton.Click += (sender, e) =>
             {
-                // Set the properties with the selected values
                 SlaveID = slaveIdTextBox.Text;
                 SelectedCOMPort = comPortComboBox.SelectedItem.ToString();
                 SelectedBaudRate = int.Parse(baudRateComboBox.SelectedItem.ToString());
@@ -176,7 +163,6 @@ namespace Bachelor_Test
             cancelButton.Location = new Point(300, 250);
             cancelButton.Click += (sender, e) => this.Close();
 
-            // Add controls to the form
             this.Controls.Add(slaveIdLabel);
             this.Controls.Add(slaveIdTextBox);
             this.Controls.Add(comPortLabel);
@@ -196,12 +182,12 @@ namespace Bachelor_Test
             this.Controls.Add(newIpAddressLabel);
             this.Controls.Add(newIpAddressTextBox);
 
-            // Set the size of the form
             this.ClientSize = new Size(400, 300);
             this.StartPosition = FormStartPosition.CenterParent;
             this.FormBorderStyle = FormBorderStyle.Fixed3D;
         }
 
+        //The method will search for a ethernet IP address and exclude any wifi or Virtual Machine networks, if none is found it can be set manually
         private string GetLocalIPAddress()
         {
             try
@@ -227,7 +213,6 @@ namespace Bachelor_Test
             }
             catch
             {
-                //Do nothing
                 
             }
             return "";
