@@ -71,13 +71,17 @@
             txtWatchDog = new TextBox();
             listViewSignals = new ListView();
             columnHeaderTag = new ColumnHeader();
+            comboBoxWatchdogInterval = new ComboBox();
+            btnWatchdogStart = new Button();
+            lbWatchdogMs = new Label();
+            CheckboxConnected = new RoundCheckbox();
             menuStrip1.SuspendLayout();
             SuspendLayout();
             // 
             // txtHoldingValue
             // 
             txtHoldingValue.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            txtHoldingValue.Location = new Point(637, 340);
+            txtHoldingValue.Location = new Point(649, 340);
             txtHoldingValue.Name = "txtHoldingValue";
             txtHoldingValue.Size = new Size(125, 27);
             txtHoldingValue.TabIndex = 5;
@@ -87,7 +91,7 @@
             // 
             lbRawBus.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             lbRawBus.AutoSize = true;
-            lbRawBus.Location = new Point(637, 317);
+            lbRawBus.Location = new Point(649, 317);
             lbRawBus.Name = "lbRawBus";
             lbRawBus.Size = new Size(74, 20);
             lbRawBus.TabIndex = 6;
@@ -96,7 +100,7 @@
             // btnChangeHolding
             // 
             btnChangeHolding.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            btnChangeHolding.Location = new Point(782, 328);
+            btnChangeHolding.Location = new Point(794, 328);
             btnChangeHolding.Name = "btnChangeHolding";
             btnChangeHolding.Size = new Size(138, 51);
             btnChangeHolding.TabIndex = 9;
@@ -108,7 +112,7 @@
             // 
             lbTag.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             lbTag.AutoSize = true;
-            lbTag.Location = new Point(268, 48);
+            lbTag.Location = new Point(280, 48);
             lbTag.Name = "lbTag";
             lbTag.Size = new Size(32, 20);
             lbTag.TabIndex = 13;
@@ -117,7 +121,7 @@
             // txtTag
             // 
             txtTag.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            txtTag.Location = new Point(268, 71);
+            txtTag.Location = new Point(280, 71);
             txtTag.Name = "txtTag";
             txtTag.ReadOnly = true;
             txtTag.Size = new Size(494, 27);
@@ -127,7 +131,7 @@
             // 
             lbDescription.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             lbDescription.AutoSize = true;
-            lbDescription.Location = new Point(268, 102);
+            lbDescription.Location = new Point(280, 102);
             lbDescription.Name = "lbDescription";
             lbDescription.Size = new Size(85, 20);
             lbDescription.TabIndex = 16;
@@ -136,7 +140,7 @@
             // txtDescription
             // 
             txtDescription.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            txtDescription.Location = new Point(268, 125);
+            txtDescription.Location = new Point(280, 125);
             txtDescription.Name = "txtDescription";
             txtDescription.ReadOnly = true;
             txtDescription.Size = new Size(494, 27);
@@ -146,7 +150,7 @@
             // 
             lbAdress.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             lbAdress.AutoSize = true;
-            lbAdress.Location = new Point(268, 180);
+            lbAdress.Location = new Point(280, 180);
             lbAdress.Name = "lbAdress";
             lbAdress.Size = new Size(53, 20);
             lbAdress.TabIndex = 18;
@@ -155,7 +159,7 @@
             // txtAdress
             // 
             txtAdress.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            txtAdress.Location = new Point(268, 203);
+            txtAdress.Location = new Point(280, 203);
             txtAdress.Name = "txtAdress";
             txtAdress.ReadOnly = true;
             txtAdress.Size = new Size(125, 27);
@@ -165,7 +169,7 @@
             // 
             lbEngLow.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             lbEngLow.AutoSize = true;
-            lbEngLow.Location = new Point(409, 180);
+            lbEngLow.Location = new Point(421, 180);
             lbEngLow.Name = "lbEngLow";
             lbEngLow.Size = new Size(34, 20);
             lbEngLow.TabIndex = 20;
@@ -174,7 +178,7 @@
             // txtEngLow
             // 
             txtEngLow.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            txtEngLow.Location = new Point(409, 203);
+            txtEngLow.Location = new Point(421, 203);
             txtEngLow.Name = "txtEngLow";
             txtEngLow.ReadOnly = true;
             txtEngLow.Size = new Size(125, 27);
@@ -184,7 +188,7 @@
             // 
             lbEngHigh.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             lbEngHigh.AutoSize = true;
-            lbEngHigh.Location = new Point(540, 180);
+            lbEngHigh.Location = new Point(552, 180);
             lbEngHigh.Name = "lbEngHigh";
             lbEngHigh.Size = new Size(37, 20);
             lbEngHigh.TabIndex = 22;
@@ -193,7 +197,7 @@
             // txtEngHigh
             // 
             txtEngHigh.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            txtEngHigh.Location = new Point(540, 203);
+            txtEngHigh.Location = new Point(552, 203);
             txtEngHigh.Name = "txtEngHigh";
             txtEngHigh.ReadOnly = true;
             txtEngHigh.Size = new Size(125, 27);
@@ -203,7 +207,7 @@
             // 
             lbSerialLow.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             lbSerialLow.AutoSize = true;
-            lbSerialLow.Location = new Point(483, 246);
+            lbSerialLow.Location = new Point(495, 246);
             lbSerialLow.Name = "lbSerialLow";
             lbSerialLow.Size = new Size(61, 20);
             lbSerialLow.TabIndex = 24;
@@ -212,7 +216,7 @@
             // txtSerialLow
             // 
             txtSerialLow.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            txtSerialLow.Location = new Point(483, 269);
+            txtSerialLow.Location = new Point(495, 269);
             txtSerialLow.Name = "txtSerialLow";
             txtSerialLow.ReadOnly = true;
             txtSerialLow.Size = new Size(125, 27);
@@ -222,7 +226,7 @@
             // 
             lbSerialHigh.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             lbSerialHigh.AutoSize = true;
-            lbSerialHigh.Location = new Point(637, 246);
+            lbSerialHigh.Location = new Point(649, 246);
             lbSerialHigh.Name = "lbSerialHigh";
             lbSerialHigh.Size = new Size(64, 20);
             lbSerialHigh.TabIndex = 26;
@@ -231,7 +235,7 @@
             // txtSerialHigh
             // 
             txtSerialHigh.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            txtSerialHigh.Location = new Point(637, 269);
+            txtSerialHigh.Location = new Point(649, 269);
             txtSerialHigh.Name = "txtSerialHigh";
             txtSerialHigh.ReadOnly = true;
             txtSerialHigh.Size = new Size(125, 27);
@@ -250,7 +254,7 @@
             // 
             lbEngUnit.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             lbEngUnit.AutoSize = true;
-            lbEngUnit.Location = new Point(680, 177);
+            lbEngUnit.Location = new Point(692, 177);
             lbEngUnit.Name = "lbEngUnit";
             lbEngUnit.Size = new Size(65, 20);
             lbEngUnit.TabIndex = 29;
@@ -259,7 +263,7 @@
             // txtEngUnit
             // 
             txtEngUnit.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            txtEngUnit.Location = new Point(680, 203);
+            txtEngUnit.Location = new Point(692, 203);
             txtEngUnit.Name = "txtEngUnit";
             txtEngUnit.ReadOnly = true;
             txtEngUnit.Size = new Size(82, 27);
@@ -272,7 +276,7 @@
             menuStrip1.Location = new Point(0, 0);
             menuStrip1.Name = "menuStrip1";
             menuStrip1.Padding = new Padding(6, 3, 0, 3);
-            menuStrip1.Size = new Size(942, 30);
+            menuStrip1.Size = new Size(954, 30);
             menuStrip1.TabIndex = 33;
             menuStrip1.Text = "menuStrip1";
             // 
@@ -328,7 +332,7 @@
             // btnStartSimulator
             // 
             btnStartSimulator.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            btnStartSimulator.Location = new Point(781, 59);
+            btnStartSimulator.Location = new Point(803, 59);
             btnStartSimulator.Name = "btnStartSimulator";
             btnStartSimulator.Size = new Size(139, 51);
             btnStartSimulator.TabIndex = 34;
@@ -339,7 +343,7 @@
             // btnStopSimulator
             // 
             btnStopSimulator.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            btnStopSimulator.Location = new Point(781, 125);
+            btnStopSimulator.Location = new Point(803, 125);
             btnStopSimulator.Name = "btnStopSimulator";
             btnStopSimulator.Size = new Size(139, 51);
             btnStopSimulator.TabIndex = 35;
@@ -351,7 +355,7 @@
             // 
             label2.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             label2.AutoSize = true;
-            label2.Location = new Point(-18, 327);
+            label2.Location = new Point(-6, 327);
             label2.Name = "label2";
             label2.Size = new Size(0, 20);
             label2.TabIndex = 36;
@@ -360,7 +364,7 @@
             // 
             label3.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             label3.AutoSize = true;
-            label3.Location = new Point(262, 315);
+            label3.Location = new Point(274, 315);
             label3.Name = "label3";
             label3.Size = new Size(86, 20);
             label3.TabIndex = 37;
@@ -371,7 +375,7 @@
             btnResultNotOK.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             btnResultNotOK.BackColor = SystemColors.Control;
             btnResultNotOK.ForeColor = Color.Red;
-            btnResultNotOK.Location = new Point(362, 338);
+            btnResultNotOK.Location = new Point(374, 338);
             btnResultNotOK.Name = "btnResultNotOK";
             btnResultNotOK.Size = new Size(94, 29);
             btnResultNotOK.TabIndex = 38;
@@ -384,7 +388,7 @@
             btnResultOK.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             btnResultOK.BackColor = SystemColors.Control;
             btnResultOK.ForeColor = Color.LawnGreen;
-            btnResultOK.Location = new Point(262, 338);
+            btnResultOK.Location = new Point(274, 338);
             btnResultOK.Name = "btnResultOK";
             btnResultOK.Size = new Size(94, 29);
             btnResultOK.TabIndex = 39;
@@ -395,7 +399,7 @@
             // txtRawBusValue
             // 
             txtRawBusValue.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            txtRawBusValue.Location = new Point(483, 340);
+            txtRawBusValue.Location = new Point(495, 340);
             txtRawBusValue.Name = "txtRawBusValue";
             txtRawBusValue.ReadOnly = true;
             txtRawBusValue.Size = new Size(125, 27);
@@ -405,7 +409,7 @@
             // 
             lbRawBusValue.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             lbRawBusValue.AutoSize = true;
-            lbRawBusValue.Location = new Point(515, 317);
+            lbRawBusValue.Location = new Point(527, 317);
             lbRawBusValue.Name = "lbRawBusValue";
             lbRawBusValue.Size = new Size(64, 20);
             lbRawBusValue.TabIndex = 37;
@@ -415,7 +419,7 @@
             // 
             cbPlusRegister.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             cbPlusRegister.AutoSize = true;
-            cbPlusRegister.Location = new Point(266, 245);
+            cbPlusRegister.Location = new Point(278, 245);
             cbPlusRegister.Name = "cbPlusRegister";
             cbPlusRegister.Size = new Size(49, 24);
             cbPlusRegister.TabIndex = 38;
@@ -426,7 +430,7 @@
             // 
             cbMinusRegister.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             cbMinusRegister.AutoSize = true;
-            cbMinusRegister.Location = new Point(348, 245);
+            cbMinusRegister.Location = new Point(360, 245);
             cbMinusRegister.Name = "cbMinusRegister";
             cbMinusRegister.Size = new Size(45, 24);
             cbMinusRegister.TabIndex = 39;
@@ -437,7 +441,7 @@
             // 
             label1.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             label1.AutoSize = true;
-            label1.Location = new Point(277, 449);
+            label1.Location = new Point(289, 449);
             label1.Name = "label1";
             label1.Size = new Size(136, 20);
             label1.TabIndex = 40;
@@ -446,7 +450,7 @@
             // txtWatchDog
             // 
             txtWatchDog.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            txtWatchDog.Location = new Point(277, 482);
+            txtWatchDog.Location = new Point(289, 482);
             txtWatchDog.Name = "txtWatchDog";
             txtWatchDog.ReadOnly = true;
             txtWatchDog.Size = new Size(125, 27);
@@ -469,11 +473,56 @@
             columnHeaderTag.Text = "Tag";
             columnHeaderTag.Width = 240;
             // 
+            // comboBoxWatchdogInterval
+            // 
+            comboBoxWatchdogInterval.FormattingEnabled = true;
+            comboBoxWatchdogInterval.Items.AddRange(new object[] { "100", "200", "400", "600", "800", "1000" });
+            comboBoxWatchdogInterval.Location = new Point(436, 518);
+            comboBoxWatchdogInterval.Name = "comboBoxWatchdogInterval";
+            comboBoxWatchdogInterval.Size = new Size(108, 28);
+            comboBoxWatchdogInterval.TabIndex = 42;
+            // 
+            // btnWatchdogStart
+            // 
+            btnWatchdogStart.Location = new Point(436, 480);
+            btnWatchdogStart.Name = "btnWatchdogStart";
+            btnWatchdogStart.Size = new Size(94, 29);
+            btnWatchdogStart.TabIndex = 43;
+            btnWatchdogStart.Text = "Start";
+            btnWatchdogStart.UseVisualStyleBackColor = true;
+            btnWatchdogStart.Click += btnWatchdogStart_Click;
+            // 
+            // lbWatchdogMs
+            // 
+            lbWatchdogMs.AutoSize = true;
+            lbWatchdogMs.Location = new Point(550, 521);
+            lbWatchdogMs.Name = "lbWatchdogMs";
+            lbWatchdogMs.Size = new Size(28, 20);
+            lbWatchdogMs.TabIndex = 44;
+            lbWatchdogMs.Text = "ms";
+            // 
+            // CheckboxConnected
+            // 
+            CheckboxConnected.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            CheckboxConnected.AutoSize = true;
+            CheckboxConnected.Enabled = false;
+            CheckboxConnected.Font = new Font("Segoe UI", 10.2F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            CheckboxConnected.Location = new Point(803, 182);
+            CheckboxConnected.Name = "CheckboxConnected";
+            CheckboxConnected.Size = new Size(117, 27);
+            CheckboxConnected.TabIndex = 45;
+            CheckboxConnected.Text = "Connected";
+            CheckboxConnected.UseVisualStyleBackColor = true;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(942, 573);
+            ClientSize = new Size(954, 573);
+            Controls.Add(CheckboxConnected);
+            Controls.Add(lbWatchdogMs);
+            Controls.Add(btnWatchdogStart);
+            Controls.Add(comboBoxWatchdogInterval);
             Controls.Add(txtWatchDog);
             Controls.Add(label1);
             Controls.Add(listViewSignals);
@@ -562,5 +611,9 @@
         private TextBox txtWatchDog;
         private ListView listViewSignals;
         private ColumnHeader columnHeaderTag;
+        private ComboBox comboBoxWatchdogInterval;
+        private Button btnWatchdogStart;
+        private Label lbWatchdogMs;
+        private RoundCheckbox CheckboxConnected;
     }
 }

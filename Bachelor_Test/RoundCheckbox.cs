@@ -1,0 +1,49 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Drawing.Drawing2D;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+namespace Bachelor_Test
+{
+    public class RoundCheckbox : CheckBox
+    {
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            // Clear the background
+            e.Graphics.Clear(this.BackColor);
+
+            // Determine the size of the checkbox
+            int checkBoxSize = 16; // You can adjust the size as needed
+
+            // Create a rectangle for the checkbox
+            Rectangle rect = new Rectangle(0, 0, checkBoxSize, checkBoxSize);
+
+            // If the checkbox is checked, draw the green circle
+            if (this.Checked)
+            {
+                using (Brush brush = new SolidBrush(Color.Green))
+                {
+                    e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+                    e.Graphics.FillEllipse(brush, rect);
+                }
+            }
+            else
+            {
+                // Optionally, draw an empty circle or leave it blank when unchecked
+                using (Pen pen = new Pen(Color.Gray, 2))
+                {
+                    e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+                    e.Graphics.DrawEllipse(pen, rect);
+                }
+            }
+
+            // Draw the text associated with the checkbox
+            TextRenderer.DrawText(e.Graphics, this.Text, this.Font,
+                new Point(checkBoxSize + 2, (this.Height - this.Font.Height) / 2),
+                this.ForeColor);
+        }
+    }
+}
