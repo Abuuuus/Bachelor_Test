@@ -53,7 +53,15 @@ namespace Bachelor_Test
         private bool _rtuRequestReceived = false;
         private bool _tcpRequestReceived = false;
         private bool isAlarmDisplayed = false;
-
+        private DateTime _lastCommunicationTime;
+        private bool _isRestarting = false;
+        private const int MaxRestartAttempts = 3;
+        private int currentRestartAttempts = 0;
+        private DateTime lastCommunicationTime;
+        private bool isRestarting = false;
+        private System.Windows.Forms.Timer restartTimer;
+        private const int CommunicationTimeout = 5000; // 5 seconds
+        private const int RestartDelay = 3000; // 3 seconds
 
 
 
@@ -61,6 +69,7 @@ namespace Bachelor_Test
         {
             InitializeComponent();
             StartPosition = FormStartPosition.CenterScreen;
+
         }
 
         //Makes sure holding register value is changed when toggle is pressed
@@ -139,7 +148,7 @@ namespace Bachelor_Test
 
                 if (rtuSlave != null && rtuSlave.DataStore != null)  // Ensure the RTU Modbus Slave is initialized
                 {
-                    
+
                     if (registerAdressRaw.Contains("."))
                     {
                         int dotAdress = int.Parse(registerAdressRaw.Substring(registerAdressRaw.IndexOf(".") + 1));
@@ -291,30 +300,38 @@ namespace Bachelor_Test
 
         private void settingsToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            string localIPAddress;
             COMPortSettingsMessageBox comSettings = new COMPortSettingsMessageBox();
             if (comSettings.ShowDialog() == DialogResult.OK)
             {
-                // Retrieve the selected values
-                comPort = comSettings.SelectedCOMPort;
-                slaveID = byte.Parse(comSettings.SlaveID);
-                baudRate = comSettings.SelectedBaudRate;
-                dataBits = comSettings.SelectedDataBits;
-                stopBits = comSettings.SelectedStopBits;
-                parity = comSettings.SelectedParity;
-                string localIPAddress = comSettings.LocalIPAddress;
-                // Split the IP address into its components
-                string[] ipParts = localIPAddress.Split('.');
                 try
                 {
-                    // Convert each part to a byte and store it in the array
-                    for (int i = 0; i < 4; i++)
+                    // Retrieve the selected values
+                    comPort = comSettings.SelectedCOMPort;
+                    slaveID = byte.Parse(comSettings.SlaveID);
+                    baudRate = comSettings.SelectedBaudRate;
+                    dataBits = comSettings.SelectedDataBits;
+                    stopBits = comSettings.SelectedStopBits;
+                    parity = comSettings.SelectedParity;
+                    localIPAddress = comSettings.LocalIPAddress;
+                    // Split the IP address into its components
+                    string[] ipParts = localIPAddress.Split('.');
+                    try
                     {
-                        serverIpAdress[i] = byte.Parse(ipParts[i]);
+                        // Convert each part to a byte and store it in the array
+                        for (int i = 0; i < 4; i++)
+                        {
+                            serverIpAdress[i] = byte.Parse(ipParts[i]);
+                        }
+                    }
+                    catch
+                    {
+                        //Do nothing
                     }
                 }
                 catch
                 {
-                    //Do nothing
+                    MessageBox.Show("Something went wrong with the settings, try again");
                 }
 
             }
@@ -375,7 +392,6 @@ namespace Bachelor_Test
                         }
                     });
 
-                    MessageBox.Show($"TCP server is running on {address}:{port}");
                 }
                 catch (SocketException ex)
                 {
@@ -433,7 +449,10 @@ namespace Bachelor_Test
                 {
                     MessageBox.Show($"Error: {ex.Message}");
                 }
-                InitializeWatchdog();
+                if (rtuSlave != null && tcpSlave != null)
+                {
+                    CheckboxConnected.Checked = true;
+                }
             }
         }
 
@@ -463,7 +482,6 @@ namespace Bachelor_Test
                     tcpListener = null;
                 }
 
-                MessageBox.Show("Server stopped.");
             }
             catch (SocketException ex)
             {
@@ -493,11 +511,14 @@ namespace Bachelor_Test
                     serialport = null;
                 }
 
-                MessageBox.Show("RTU slave stopped");
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Error stopping RTU slave: {ex.Message}");
+            }
+            if(tcpSlave == null && rtuSlave == null)
+            {
+                CheckboxConnected.Checked = false;
             }
         }
 
@@ -508,7 +529,7 @@ namespace Bachelor_Test
 
             if (string.IsNullOrEmpty(selectedSerialAddress))
             {
-                MessageBox.Show("Ingen rad valgt!");
+                MessageBox.Show("No row selected");
 
             }
             else
@@ -670,45 +691,51 @@ namespace Bachelor_Test
 
         }
 
-        // Method to initialize and start the watchdog timer
-        private void InitializeWatchdog()
+        private void InitializeWatchdog(int interval)
         {
-            // Subscribe to the ModbusSlaveRequestReceived event for both TCP and RTU slaves
-            rtuSlave.ModbusSlaveRequestReceived += OnRtuModbusSlaveRequestReceived;
-            tcpSlave.ModbusSlaveRequestReceived += OnTcpModbusSlaveRequestReceived;
+            if(rtuSlave != null && tcpSlave != null)
+            {
+                // Subscribe to the ModbusSlaveRequestReceived event for both TCP and RTU slaves
+                rtuSlave.ModbusSlaveRequestReceived += OnRtuModbusSlaveRequestReceived;
+                tcpSlave.ModbusSlaveRequestReceived += OnTcpModbusSlaveRequestReceived;
+                // Initialize the watchdog timer
+                _watchdogTimer = new System.Windows.Forms.Timer();
+                _watchdogTimer.Interval = interval;
+                _watchdogTimer.Tick += WatchdogTimer_Tick;
+                _watchdogTimer.Start();
 
-            // Initialize the watchdog timer
-            _watchdogTimer = new System.Windows.Forms.Timer();
-            _watchdogTimer.Interval = 200; // Set the interval to 200 milliseconds
-            _watchdogTimer.Tick += WatchdogTimer_Tick;
-            _watchdogTimer.Start();
+                // Initialize the restart timer
+                restartTimer = new System.Windows.Forms.Timer();
+                restartTimer.Interval = RestartDelay;
+                restartTimer.Tick += RestartTimer_Tick;
+
+                // Set the initial last communication time to the current time
+                lastCommunicationTime = DateTime.Now;
+            }
+            else
+            {
+                MessageBox.Show("Cannot start the watchdog, communication channels have not been opened");
+            }
+
         }
 
-        // Event handler for RTU Modbus slave requests
         private void OnRtuModbusSlaveRequestReceived(object sender, ModbusSlaveRequestEventArgs e)
         {
-            // Set the flag to indicate an RTU request has been received
             _rtuRequestReceived = true;
         }
 
-        // Event handler for TCP Modbus slave requests
         private void OnTcpModbusSlaveRequestReceived(object sender, ModbusSlaveRequestEventArgs e)
         {
-            // Set the flag to indicate a TCP request has been received
             _tcpRequestReceived = true;
         }
 
-        // Event handler for the watchdog timer's Tick event
         private void WatchdogTimer_Tick(object sender, EventArgs e)
         {
             if (_rtuRequestReceived && _tcpRequestReceived)
             {
                 // Both RTU and TCP requests have been received within the interval
-
-                // Increment the watchdog counter
                 watchDog++;
 
-                // Update the TextBox with the current watchdog counter
                 if (txtWatchDog.InvokeRequired)
                 {
                     txtWatchDog.Invoke(new Action(() =>
@@ -721,19 +748,92 @@ namespace Bachelor_Test
                     txtWatchDog.Text = watchDog.ToString();
                 }
 
-                // Reset the alarm flag
+                // Reset the alarm flag and update the last communication time
                 isAlarmDisplayed = false;
+                lastCommunicationTime = DateTime.Now;
+                isRestarting = false;
+                currentRestartAttempts = 0;
+                restartTimer.Stop();
             }
             else
             {
-
+                // Check if the communication timeout has been exceeded
+                if ((DateTime.Now - lastCommunicationTime).TotalMilliseconds > CommunicationTimeout)
+                {
+                    if (!isRestarting && currentRestartAttempts < MaxRestartAttempts)
+                    {
+                        // Start the restart process
+                        isRestarting = true;
+                        currentRestartAttempts++;
+                        StopSimulator();
+                        StartSimulator();
+                        restartTimer.Start();
+                    }
+                    else if (currentRestartAttempts >= MaxRestartAttempts && !isAlarmDisplayed)
+                    {
+                        // Display alarm message after maximum restart attempts
+                        isAlarmDisplayed = true;
+                        MessageBox.Show("Alarm: No Modbus requests received after multiple restart attempts.");
+                    }
+                }
             }
 
-            // Reset the flags for the next interval
             _rtuRequestReceived = false;
             _tcpRequestReceived = false;
         }
 
+        private void RestartTimer_Tick(object sender, EventArgs e)
+        {
+            if (isRestarting)
+            {
+                isRestarting = false;
+                restartTimer.Stop();
+            }
+        }
+
+
+        private void btnWatchdogStart_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                int interval = int.Parse(comboBoxWatchdogInterval.Text);
+                if (btnWatchdogStart.Text == "Start")
+                {
+                    InitializeWatchdog(interval);
+                    btnWatchdogStart.Text = "Stop";
+                }
+                else if (btnWatchdogStart.Text == "Stop")
+                {
+                    // Check if the watchdog timer is initialized before stopping it
+                    if (_watchdogTimer != null)
+                    {
+                        _watchdogTimer.Stop();
+                    }
+
+                    // Unsubscribe from the ModbusSlaveRequestReceived events if rtuSlave and tcpSlave are initialized
+                    if (rtuSlave != null)
+                    {
+                        rtuSlave.ModbusSlaveRequestReceived -= OnRtuModbusSlaveRequestReceived;
+                    }
+
+                    if (tcpSlave != null)
+                    {
+                        tcpSlave.ModbusSlaveRequestReceived -= OnTcpModbusSlaveRequestReceived;
+                    }
+
+                    // Reset the watchdog counter and update the TextBox
+                    watchDog = 0;
+                    txtWatchDog.Text = watchDog.ToString();
+
+                    // Reset the button text to "Start"
+                    btnWatchdogStart.Text = "Start";
+                }
+            }
+            catch (FormatException)
+            {
+                MessageBox.Show("You must select a valid number for the interval");
+            }
+        }
     }
 }
 
