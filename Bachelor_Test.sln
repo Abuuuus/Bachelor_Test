@@ -5,6 +5,8 @@ VisualStudioVersion = 17.8.34330.188
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bachelor_Test", "Bachelor_Test\Bachelor_Test.csproj", "{896477EB-BBB8-4529-9FA5-960BCC7CBB9C}"
 EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Simulator_exe_file", "Simulator_exe_file\Simulator_exe_file.vdproj", "{2CD083EC-2D5E-429C-BE29-A6D6EF29259A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,8 @@ Global
 		{896477EB-BBB8-4529-9FA5-960BCC7CBB9C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{896477EB-BBB8-4529-9FA5-960BCC7CBB9C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{896477EB-BBB8-4529-9FA5-960BCC7CBB9C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2CD083EC-2D5E-429C-BE29-A6D6EF29259A}.Debug|Any CPU.ActiveCfg = Debug
+		{2CD083EC-2D5E-429C-BE29-A6D6EF29259A}.Release|Any CPU.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
