@@ -458,6 +458,7 @@
             // 
             // listViewSignals
             // 
+            listViewSignals.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             listViewSignals.BackColor = Color.Silver;
             listViewSignals.Columns.AddRange(new ColumnHeader[] { columnHeaderTag });
             listViewSignals.Location = new Point(12, 79);
@@ -475,6 +476,7 @@
             // 
             // comboBoxWatchdogInterval
             // 
+            comboBoxWatchdogInterval.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             comboBoxWatchdogInterval.FormattingEnabled = true;
             comboBoxWatchdogInterval.Items.AddRange(new object[] { "100", "200", "400", "600", "800", "1000" });
             comboBoxWatchdogInterval.Location = new Point(436, 518);
@@ -484,6 +486,7 @@
             // 
             // btnWatchdogStart
             // 
+            btnWatchdogStart.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             btnWatchdogStart.Location = new Point(436, 480);
             btnWatchdogStart.Name = "btnWatchdogStart";
             btnWatchdogStart.Size = new Size(94, 29);
@@ -494,6 +497,7 @@
             // 
             // lbWatchdogMs
             // 
+            lbWatchdogMs.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             lbWatchdogMs.AutoSize = true;
             lbWatchdogMs.Location = new Point(550, 521);
             lbWatchdogMs.Name = "lbWatchdogMs";
