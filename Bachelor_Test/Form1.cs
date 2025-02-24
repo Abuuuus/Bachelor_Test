@@ -143,7 +143,7 @@ namespace Bachelor_Test
 
         private void connectToDatabase(string filepath) //Method for extracting selected IO list
         {
-            string querystring = "SELECT Io_List.S_Serial_Line_Name, Io_List.S_Instrument_Tag, Io_List.S_Description, Io_List.S_Serial_Line_Address, Io_List.S_Eng_Units, Io_List.S_Eng_Range_Low, Io_List.S_Eng_Range_High, Io_List.S_Serial_Line_Range_Low, Io_List.S_Serial_Line_Range_High, Io_List.W_Citect_Test, Io_List.S_Loop_Typical\r\nFROM Io_List\r\nWHERE (((Io_List.S_Serial_Line_Name) Is Not Null))\r\nORDER BY Io_List.S_Instrument_Tag DESC;";
+            string querystring = "SELECT Io_List.S_Serial_Line_Name, Io_List.S_Instrument_Tag, Io_List.S_Description, Io_List.S_Serial_Line_Address, Io_List.S_Eng_Units, Io_List.S_Eng_Range_Low, Io_List.S_Eng_Range_High, Io_List.S_Serial_Line_Range_Low, Io_List.S_Serial_Line_Range_High, Io_List.W_Citect_Test, Io_List.S_Loop_Typical\r\nFROM Io_List\r\nWHERE (((Io_List.S_Serial_Line_Name) Is Not Null))\r\nORDER BY Io_List.S_Instrument_Tag ASC;";
             using OleDbConnection connection = new OleDbConnection($"Provider=Microsoft.ACE.OLEDB.12.0;Data Source={filepath};Persist Security Info=False;");
             using OleDbCommand command = new OleDbCommand(querystring, connection);
             string verrifiedQuerystring = "UPDATE Io_List SET W_Citect_Test = @newValue WHERE S_Serial_Line_Name IS NOT NULL;";
