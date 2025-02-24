@@ -36,6 +36,7 @@ namespace Bachelor_Test
         private List<string> serialLineHigh = new List<string>();
         private List<string> serialLineName = new List<string>();
         private List<string> verifiedTest = new List<string>(); // Verifing if tag is OK or not OK under testing. 
+        private List<string> sLoopTypical = new List<string>();
         private List<Color> tagColors = new List<Color>(); //Storing the color based on IO list
         private byte slaveID = 1; //Default slaveID 1
         private string comPort = ""; //Gets assigned in the GUI
@@ -73,124 +74,76 @@ namespace Bachelor_Test
         }
 
         //Makes sure holding register value is changed when toggle is pressed
-        private void btnChangeHolding_Click(object sender, EventArgs e)
+        private void btnToggleValue(object sender, EventArgs e)
         {
             try
             {
-                string registerAdressRaw = txtAdress.Text;
-                string registerAdressSubstring;
-                double registerAdress = 0;
+                // Parse and adjust the register address from the input
+                string registerAddressRaw = txtAdress.Text;
+                string registerAddressSubstring;
+                double registerAddress = 0;
 
-                if (registerAdressRaw.Contains("."))
+                if (registerAddressRaw.Contains("."))
                 {
-                    registerAdressSubstring = registerAdressRaw.Substring(0, registerAdressRaw.IndexOf("."));
-                    registerAdress = double.Parse(registerAdressSubstring) - 40000; // Adjusting for the leading number
+                    registerAddressSubstring = registerAddressRaw.Substring(0, registerAddressRaw.IndexOf("."));
+                    registerAddress = double.Parse(registerAddressSubstring) - 40000; // Adjusting for the leading number
                 }
                 else
                 {
-                    registerAdressSubstring = registerAdressRaw;
-                    registerAdress = double.Parse(registerAdressRaw) - 40000; // Adjusting for the leading number
+                    registerAddressSubstring = registerAddressRaw;
+                    registerAddress = double.Parse(registerAddressRaw) - 40000; // Adjusting for the leading number
                 }
 
+                // Adjust the register address based on checkbox selections
                 if (cbPlusRegister.Checked && !cbMinusRegister.Checked)
                 {
-                    registerAdress += 1;
+                    registerAddress += 1;
                 }
                 else if (cbMinusRegister.Checked && !cbPlusRegister.Checked)
                 {
-                    registerAdress -= 1;
+                    registerAddress -= 1;
                 }
 
-                ushort startAddress = (ushort)registerAdress;
-                string addressValue = txtHoldingValue.Text;
-                int adr = Convert.ToInt32(addressValue);
-                bool BitAdress = addressValue.Contains(".");
-                int sensorLow = int.Parse(txtEngLow.Text);
-                int sensorHigh = int.Parse(txtEngHigh.Text);
-                int serialLow = int.Parse(txtSerialLow.Text);
-                int serialHigh = int.Parse(txtSerialHigh.Text);
-                ushort uSendRawData = 0;
-                int Scale;
-                int rawData;
-                int sendRawData;
-
-
-
-                if (tcpSlave != null && tcpSlave.DataStore != null) //Ensures that the TCP server is initialized
+                // Ensure the register address is within the valid range
+                if (registerAddress < 0 || registerAddress >= tcpSlave.DataStore.HoldingRegisters.Count)
                 {
-                    if (registerAdressRaw.Contains(".")) //If dotted extracts the number after the dot
-                    {
-                        int dotAdress = int.Parse(registerAdressRaw.Substring(registerAdressRaw.IndexOf(".") + 1));
-                        BittCounter bittCounter = new BittCounter(dotAdress, adr);
-                        uSendRawData = bittCounter.BittMassage;
-                    }
-                    else if (adr < 0 && serialLow != 0)
-                    {
-                        Scale = serialLow / sensorLow;
-                        rawData = Scale * adr;
-                        sendRawData = rawData + 65536;
-                        uSendRawData = (ushort)sendRawData;
-                    }
-                    else if (adr == 0 && serialLow == 0)
-                    {
-                        uSendRawData = 0;
-                    }
-                    else
-                    {
-                        Scale = serialHigh / sensorHigh;
-                        rawData = Scale * adr;
-                        uSendRawData = (ushort)rawData;
-                    }
-
-                    tcpSlave.DataStore.HoldingRegisters[startAddress] = uSendRawData;
+                    MessageBox.Show("Invalid register address.");
+                    return;
                 }
 
+                // Access the holding register value
+                ushort currentValue = tcpSlave.DataStore.HoldingRegisters[(int)registerAddress];
 
-                if (rtuSlave != null && rtuSlave.DataStore != null)  // Ensure the RTU Modbus Slave is initialized
-                {
+                // Example: Toggle the value (assuming a boolean context)
+                // If the register represents a boolean value (0 or 1), toggle between 0 and 1
+                ushort newValue = (currentValue == 0) ? (ushort)1 : (ushort)0;
 
-                    if (registerAdressRaw.Contains("."))
-                    {
-                        int dotAdress = int.Parse(registerAdressRaw.Substring(registerAdressRaw.IndexOf(".") + 1));
-                        BittCounter bittCounter = new BittCounter(dotAdress, adr);
-                        uSendRawData = bittCounter.BittMassage;
-                    }
-                    else if (adr < 0) //Calculation if negative number is to be saved
-                    {
-                        Scale = serialLow / sensorLow;
-                        rawData = Scale * adr;
-                        sendRawData = rawData + 65536;
-                        uSendRawData = (ushort)sendRawData;
-                    }
-                    else
-                    {
-                        Scale = serialHigh / sensorHigh;
-                        rawData = Scale * adr;
-                        uSendRawData = (ushort)rawData;
-                    }
+                // Update the holding register with the new value
+                tcpSlave.DataStore.HoldingRegisters[(int)registerAddress] = newValue;
 
-                    rtuSlave.DataStore.HoldingRegisters[startAddress] = uSendRawData;
-                }
+                // Optionally, provide feedback to the user
+                MessageBox.Show($"Register at address {registerAddress + 40000} toggled to {newValue}.");
             }
             catch (FormatException)
             {
-                MessageBox.Show("The address must be a valid integer.", "Input Error");
+                MessageBox.Show("The address must be a valid number.", "Input Error");
             }
             catch (OverflowException)
             {
-                MessageBox.Show("The address is too large or too small.", "Input Error");
+                MessageBox.Show("The address is out of range.", "Input Error");
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error: {ex.Message}", "Unexpected Error");
+                MessageBox.Show($"An unexpected error occurred: {ex.Message}", "Error");
             }
         }
 
 
 
+
         private void connectToDatabase(string filepath) //Method for extracting selected IO list
         {
-            string querystring = "SELECT Io_List.S_Serial_Line_Name, Io_List.S_Instrument_Tag, Io_List.S_Description, Io_List.S_Serial_Line_Address, Io_List.S_Eng_Units, Io_List.S_Eng_Range_Low, Io_List.S_Eng_Range_High, Io_List.S_Serial_Line_Range_Low, Io_List.S_Serial_Line_Range_High, Io_List.W_Citect_Test\r\nFROM Io_List\r\nWHERE (((Io_List.S_Serial_Line_Name) Is Not Null));";
+            string querystring = "SELECT Io_List.S_Serial_Line_Name, Io_List.S_Instrument_Tag, Io_List.S_Description, Io_List.S_Serial_Line_Address, Io_List.S_Eng_Units, Io_List.S_Eng_Range_Low, Io_List.S_Eng_Range_High, Io_List.S_Serial_Line_Range_Low, Io_List.S_Serial_Line_Range_High, Io_List.W_Citect_Test, Io_List.S_Loop_Typical\r\nFROM Io_List\r\nWHERE (((Io_List.S_Serial_Line_Name) Is Not Null))\r\nORDER BY Io_List.S_Instrument_Tag DESC;";
             using OleDbConnection connection = new OleDbConnection($"Provider=Microsoft.ACE.OLEDB.12.0;Data Source={filepath};Persist Security Info=False;");
             using OleDbCommand command = new OleDbCommand(querystring, connection);
             string verrifiedQuerystring = "UPDATE Io_List SET W_Citect_Test = @newValue WHERE S_Serial_Line_Name IS NOT NULL;";
@@ -208,6 +161,7 @@ namespace Bachelor_Test
                     description.Add(reader.GetString(2));
                     serialAdress.Add(reader.GetString(3));
                     verifiedTest.Add(reader.IsDBNull(9) ? "" : reader.GetString(9));
+                    sLoopTypical.Add(reader.IsDBNull(10) ? "" : reader.GetString(10));
                     if (verifiedTest.Last().ToString() == "OK")
                     {
                         tagColors.Add(Color.LimeGreen);
@@ -270,13 +224,18 @@ namespace Bachelor_Test
         {
             listViewSignals.Items.Clear();
             string serialLineSelected = comboBoxSerialLine.Text;
+            string textBuilder = "";
             for (int i = 0; i < tag.Count; i++)
             {
                 if (serialLineName[i] == serialLineSelected)
                 {
-                    listViewSignals.Items.Add(tag[i]).BackColor = tagColors[i];
+                    textBuilder += tag[i].ToString();
+                    textBuilder += " ";
+                    textBuilder += sLoopTypical[i].ToString();
+                    listViewSignals.Items.Add(textBuilder).BackColor = tagColors[i];
 
                 }
+                textBuilder = string.Empty;
             }
         }
 
@@ -516,7 +475,7 @@ namespace Bachelor_Test
             {
                 MessageBox.Show($"Error stopping RTU slave: {ex.Message}");
             }
-            if(tcpSlave == null && rtuSlave == null)
+            if (tcpSlave == null && rtuSlave == null)
             {
                 CheckboxConnected.Checked = false;
             }
@@ -609,6 +568,18 @@ namespace Bachelor_Test
 
 
             }
+            int currentIndex = listViewSignals.SelectedItems[0].Index;
+            int nextIndex = currentIndex + 1;
+            if(nextIndex  < listViewSignals.Items.Count)
+            {
+                listViewSignals.Items[currentIndex].Selected = false;
+                listViewSignals.Items[currentIndex].Focused = false;
+                listViewSignals.Items[nextIndex].Selected = true;
+                listViewSignals.Items[nextIndex].Focused = true;
+                listViewSignals.EnsureVisible(nextIndex); //Scroll the list only if necessary
+            }
+            changeTagInformation();
+
         }
 
 
@@ -666,34 +637,13 @@ namespace Bachelor_Test
 
         private void listViewSignals_MouseDoubleClick(object sender, MouseEventArgs e)
         {
-            if (listViewSignals.SelectedItems.Count > 0)
-            {
-                ListViewItem selectedItem = listViewSignals.SelectedItems[0];
-                string tagHighLighted = selectedItem.Text; // Assuming the tag is in the first column
-
-                int position = tag.IndexOf(tagHighLighted);
-                if (position != -1)
-                {
-                    txtAdress.Text = serialAdress[position];
-                    txtDescription.Text = description[position];
-                    txtEngHigh.Text = engRangeHigh[position];
-                    txtEngLow.Text = engRangeLow[position];
-                    txtSerialHigh.Text = serialLineHigh[position];
-                    txtSerialLow.Text = serialLineLow[position];
-                    txtTag.Text = tagHighLighted;
-                    txtEngUnit.Text = engUnit[position];
-                }
-                else
-                {
-                    MessageBox.Show("Tag not found in the list.");
-                }
-            }
+            changeTagInformation();
 
         }
 
         private void InitializeWatchdog(int interval)
         {
-            if(rtuSlave != null && tcpSlave != null)
+            if (rtuSlave != null && tcpSlave != null)
             {
                 // Subscribe to the ModbusSlaveRequestReceived event for both TCP and RTU slaves
                 rtuSlave.ModbusSlaveRequestReceived += OnRtuModbusSlaveRequestReceived;
@@ -833,6 +783,156 @@ namespace Bachelor_Test
             {
                 MessageBox.Show("You must select a valid number for the interval");
             }
+        }
+
+        private void txtHoldingValue_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (e.KeyChar == (char)Keys.Enter)
+            {
+
+                try
+                {
+                    string registerAdressRaw = txtAdress.Text;
+                    string registerAdressSubstring;
+                    double registerAdress = 0;
+
+                    if (registerAdressRaw.Contains("."))
+                    {
+                        registerAdressSubstring = registerAdressRaw.Substring(0, registerAdressRaw.IndexOf("."));
+                        registerAdress = double.Parse(registerAdressSubstring) - 40000; // Adjusting for the leading number
+                    }
+                    else
+                    {
+                        registerAdressSubstring = registerAdressRaw;
+                        registerAdress = double.Parse(registerAdressRaw) - 40000; // Adjusting for the leading number
+                    }
+
+                    if (cbPlusRegister.Checked && !cbMinusRegister.Checked)
+                    {
+                        registerAdress += 1;
+                    }
+                    else if (cbMinusRegister.Checked && !cbPlusRegister.Checked)
+                    {
+                        registerAdress -= 1;
+                    }
+
+                    ushort startAddress = (ushort)registerAdress;
+                    string addressValue = txtHoldingValue.Text;
+                    int adr = Convert.ToInt32(addressValue);
+                    bool BitAdress = addressValue.Contains(".");
+                    int sensorLow = int.Parse(txtEngLow.Text);
+                    int sensorHigh = int.Parse(txtEngHigh.Text);
+                    int serialLow = int.Parse(txtSerialLow.Text);
+                    int serialHigh = int.Parse(txtSerialHigh.Text);
+                    ushort uSendRawData = 0;
+                    int Scale;
+                    int rawData;
+                    int sendRawData;
+
+
+
+                    if (tcpSlave != null && tcpSlave.DataStore != null) //Ensures that the TCP server is initialized
+                    {
+                        if (registerAdressRaw.Contains(".")) //If dotted extracts the number after the dot
+                        {
+                            int dotAdress = int.Parse(registerAdressRaw.Substring(registerAdressRaw.IndexOf(".") + 1));
+                            BittCounter bittCounter = new BittCounter(dotAdress, adr);
+                            uSendRawData = bittCounter.BittMassage;
+                        }
+                        else if (adr < 0 && serialLow != 0)
+                        {
+                            Scale = serialLow / sensorLow;
+                            rawData = Scale * adr;
+                            sendRawData = rawData + 65536;
+                            uSendRawData = (ushort)sendRawData;
+                        }
+                        else if (adr == 0 && serialLow == 0)
+                        {
+                            uSendRawData = 0;
+                        }
+                        else
+                        {
+                            Scale = serialHigh / sensorHigh;
+                            rawData = Scale * adr;
+                            uSendRawData = (ushort)rawData;
+                        }
+
+                        tcpSlave.DataStore.HoldingRegisters[startAddress] = uSendRawData;
+                    }
+
+
+                    if (rtuSlave != null && rtuSlave.DataStore != null)  // Ensure the RTU Modbus Slave is initialized
+                    {
+
+                        if (registerAdressRaw.Contains("."))
+                        {
+                            int dotAdress = int.Parse(registerAdressRaw.Substring(registerAdressRaw.IndexOf(".") + 1));
+                            BittCounter bittCounter = new BittCounter(dotAdress, adr);
+                            uSendRawData = bittCounter.BittMassage;
+                        }
+                        else if (adr < 0) //Calculation if negative number is to be saved
+                        {
+                            Scale = serialLow / sensorLow;
+                            rawData = Scale * adr;
+                            sendRawData = rawData + 65536;
+                            uSendRawData = (ushort)sendRawData;
+                        }
+                        else
+                        {
+                            Scale = serialHigh / sensorHigh;
+                            rawData = Scale * adr;
+                            uSendRawData = (ushort)rawData;
+                        }
+
+                        rtuSlave.DataStore.HoldingRegisters[startAddress] = uSendRawData;
+                    }
+                }
+                catch (FormatException)
+                {
+                    MessageBox.Show("The address must be a valid integer.", "Input Error");
+                }
+                catch (OverflowException)
+                {
+                    MessageBox.Show("The address is too large or too small.", "Input Error");
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error: {ex.Message}", "Unexpected Error");
+                }
+            }
+        }
+
+        private void listViewSignals_MouseClick(object sender, MouseEventArgs e)
+        {
+            changeTagInformation();
+        }
+
+        private void changeTagInformation()
+        {
+            if (listViewSignals.SelectedItems.Count > 0)
+            {
+                ListViewItem selectedItem = listViewSignals.SelectedItems[0];
+                string textHighlighted = selectedItem.Text; // Assuming the tag is in the first column
+                string tagHighlighted = textHighlighted.Substring(0, textHighlighted.IndexOf(" "));
+
+                int position = tag.IndexOf(tagHighlighted);
+                if (position != -1)
+                {
+                    txtAdress.Text = serialAdress[position];
+                    txtDescription.Text = description[position];
+                    txtEngHigh.Text = engRangeHigh[position];
+                    txtEngLow.Text = engRangeLow[position];
+                    txtSerialHigh.Text = serialLineHigh[position];
+                    txtSerialLow.Text = serialLineLow[position];
+                    txtTag.Text = tagHighlighted;
+                    txtEngUnit.Text = engUnit[position];
+                }
+                else
+                {
+                    MessageBox.Show("Tag not found in the list.");
+                }
+            }
+            txtHoldingValue.Text = string.Empty;
         }
     }
 }
