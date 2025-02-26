@@ -20,6 +20,8 @@ namespace Bachelor_Test
         public StopBits SelectedStopBits { get; private set; }
         public Parity SelectedParity { get; private set; }
         public string LocalIPAddress { get; private set; }
+        public bool rtuCommunication { get; private set; }
+        public bool tcpCommunication { get; private set; }
 
         private TextBox slaveIdTextBox;
         private ComboBox comPortComboBox;
@@ -131,7 +133,27 @@ namespace Bachelor_Test
 
             newIpAddressTextBox = new TextBox();
             newIpAddressTextBox.Location = new Point(100, 240);
-            newIpAddressTextBox.Width = 160; 
+            newIpAddressTextBox.Width = 160;
+
+            CheckBox rtuCheck = new CheckBox();
+            rtuCheck.Height = 30;
+            rtuCheck.Width = 20;
+            rtuCheck.Location = new Point(300, 20);
+
+            Label rtuCheckLabel = new Label();
+            rtuCheckLabel.Text = "RTU";
+            rtuCheckLabel.Location = new Point(340, 20);
+            rtuCheckLabel.AutoSize = true;
+
+            CheckBox tcpCheck = new CheckBox();
+            tcpCheck.Height = 30;
+            tcpCheck.Width = 20;
+            tcpCheck.Location = new Point(300, 60);
+
+            Label tcpCheckLabel = new Label();
+            tcpCheckLabel.Text = "TCP";
+            tcpCheckLabel.Location = new Point(340, 60);
+            tcpCheckLabel.AutoSize = true;
 
             Button okButton = new Button();
             okButton.Text = "OK";
@@ -152,6 +174,14 @@ namespace Bachelor_Test
                 else
                 {
                     LocalIPAddress = newIpAddressTextBox.Text;
+                }
+                if (rtuCheck.Checked)
+                {
+                    rtuCommunication = true;
+                }
+                if (tcpCheck.Checked)
+                {
+                    tcpCommunication = true;
                 }
                 this.DialogResult = DialogResult.OK;
                 this.Close();
@@ -181,7 +211,10 @@ namespace Bachelor_Test
             this.Controls.Add(cancelButton);
             this.Controls.Add(newIpAddressLabel);
             this.Controls.Add(newIpAddressTextBox);
-
+            this.Controls.Add(rtuCheck);
+            this.Controls.Add(tcpCheck);
+            this.Controls.Add(rtuCheckLabel);
+            this.Controls.Add(tcpCheckLabel);
             this.ClientSize = new Size(400, 300);
             this.StartPosition = FormStartPosition.CenterParent;
             this.FormBorderStyle = FormBorderStyle.Fixed3D;
