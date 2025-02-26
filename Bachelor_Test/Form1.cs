@@ -818,7 +818,7 @@ namespace Bachelor_Test
 
                     ushort startAddress = (ushort)registerAdress;
                     string addressValue = txtHoldingValue.Text;
-                    int adr = Convert.ToInt32(addressValue);
+                    int adrValue = Convert.ToInt32(addressValue);
                     bool BitAdress = addressValue.Contains(".");
                     int sensorLow = int.Parse(txtEngLow.Text);
                     int sensorHigh = int.Parse(txtEngHigh.Text);
@@ -836,24 +836,24 @@ namespace Bachelor_Test
                         if (registerAdressRaw.Contains(".")) //If dotted extracts the number after the dot
                         {
                             int dotAdress = int.Parse(registerAdressRaw.Substring(registerAdressRaw.IndexOf(".") + 1));
-                            BittCounter bittCounter = new BittCounter(dotAdress, adr);
+                            BittCounter bittCounter = new BittCounter(dotAdress, adrValue);
                             uSendRawData = bittCounter.BittMassage;
                         }
-                        else if (adr < 0 && serialLow != 0)
+                        else if (adrValue < 0 && serialLow != 0)
                         {
                             Scale = serialLow / sensorLow;
-                            rawData = Scale * adr;
+                            rawData = Scale * adrValue;
                             sendRawData = rawData + 65536;
                             uSendRawData = (ushort)sendRawData;
                         }
-                        else if (adr == 0 && serialLow == 0)
+                        else if (adrValue == 0 && serialLow == 0)
                         {
                             uSendRawData = 0;
                         }
                         else
                         {
                             Scale = serialHigh / sensorHigh;
-                            rawData = Scale * adr;
+                            rawData = Scale * adrValue;
                             uSendRawData = (ushort)rawData;
                         }
 
@@ -867,20 +867,20 @@ namespace Bachelor_Test
                         if (registerAdressRaw.Contains("."))
                         {
                             int dotAdress = int.Parse(registerAdressRaw.Substring(registerAdressRaw.IndexOf(".") + 1));
-                            BittCounter bittCounter = new BittCounter(dotAdress, adr);
+                            BittCounter bittCounter = new BittCounter(dotAdress, adrValue);
                             uSendRawData = bittCounter.BittMassage;
                         }
-                        else if (adr < 0) //Calculation if negative number is to be saved
+                        else if (adrValue < 0) //Calculation if negative number is to be saved
                         {
                             Scale = serialLow / sensorLow;
-                            rawData = Scale * adr;
+                            rawData = Scale * adrValue;
                             sendRawData = rawData + 65536;
                             uSendRawData = (ushort)sendRawData;
                         }
                         else
                         {
                             Scale = serialHigh / sensorHigh;
-                            rawData = Scale * adr;
+                            rawData = Scale * adrValue;
                             uSendRawData = (ushort)rawData;
                         }
 
