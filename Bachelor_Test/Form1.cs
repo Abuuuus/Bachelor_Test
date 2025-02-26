@@ -63,6 +63,8 @@ namespace Bachelor_Test
         private System.Windows.Forms.Timer restartTimer;
         private const int CommunicationTimeout = 5000; // 5 seconds
         private const int RestartDelay = 3000; // 3 seconds
+        private bool tcpCommunicationChecked;
+        private bool rtuCommunicationChecked;
 
 
 
@@ -70,6 +72,8 @@ namespace Bachelor_Test
         {
             InitializeComponent();
             StartPosition = FormStartPosition.CenterScreen;
+            listViewSignals.DrawItem += listViewSignals_DrawItem;
+            listViewSignals.DrawSubItem += listViewSignals_DrawSubItem;
 
         }
 
@@ -80,19 +84,19 @@ namespace Bachelor_Test
             {
                 // Parse and adjust the register address from the input
                 string registerAddressRaw = txtAdress.Text;
-                string registerAddressSubstring;
-                double registerAddress = 0;
-
+                string registerAddressSplit;
+                int dotAddress;
+                double registerAddress;
+                ushort currentValue;
+                ushort tempCurrentValue;
+                BittCounter bittCounter;
                 if (registerAddressRaw.Contains("."))
                 {
-                    registerAddressSubstring = registerAddressRaw.Substring(0, registerAddressRaw.IndexOf("."));
-                    registerAddress = double.Parse(registerAddressSubstring) - 40000; // Adjusting for the leading number
+                    dotAddress = int.Parse(registerAddressRaw.Substring(registerAddressRaw.IndexOf(".") + 1));
+                    registerAddressSplit = registerAddressRaw.Substring(0, registerAddressRaw.IndexOf("."));
+                    registerAddress = double.Parse(registerAddressSplit) - 40000;
                 }
-                else
-                {
-                    registerAddressSubstring = registerAddressRaw;
-                    registerAddress = double.Parse(registerAddressRaw) - 40000; // Adjusting for the leading number
-                }
+                else return;
 
                 // Adjust the register address based on checkbox selections
                 if (cbPlusRegister.Checked && !cbMinusRegister.Checked)
@@ -103,6 +107,22 @@ namespace Bachelor_Test
                 {
                     registerAddress -= 1;
                 }
+                //DEN KRESJER UNDER HER, FIKS SENERE
+                if (tcpSlave?.DataStore?.HoldingRegisters == null)
+                {
+                    MessageBox.Show("The simulator has not been started, so you cannot change registers", "Error");
+                    return;
+                }
+                currentValue = tcpSlave.DataStore.HoldingRegisters[(ushort)registerAddress];
+                if (currentValue == 0)
+                {
+                    tempCurrentValue = 1;
+                }
+                else
+                {
+                    tempCurrentValue = currentValue;
+                }
+                bittCounter = new BittCounter(dotAddress, tempCurrentValue);
 
                 // Ensure the register address is within the valid range
                 if (registerAddress < 0 || registerAddress >= tcpSlave.DataStore.HoldingRegisters.Count)
@@ -110,19 +130,9 @@ namespace Bachelor_Test
                     MessageBox.Show("Invalid register address.");
                     return;
                 }
-
-                // Access the holding register value
-                ushort currentValue = tcpSlave.DataStore.HoldingRegisters[(int)registerAddress];
-
-                // Example: Toggle the value (assuming a boolean context)
-                // If the register represents a boolean value (0 or 1), toggle between 0 and 1
-                ushort newValue = (currentValue == 0) ? (ushort)1 : (ushort)0;
-
+                ushort newValue = (currentValue == 0) ? bittCounter.BittMassage : (ushort)0;
                 // Update the holding register with the new value
-                tcpSlave.DataStore.HoldingRegisters[(int)registerAddress] = newValue;
-
-                // Optionally, provide feedback to the user
-                MessageBox.Show($"Register at address {registerAddress + 40000} toggled to {newValue}.");
+                tcpSlave.DataStore.HoldingRegisters[(ushort)registerAddress] = newValue;
             }
             catch (FormatException)
             {
@@ -143,6 +153,25 @@ namespace Bachelor_Test
 
         private void connectToDatabase(string filepath) //Method for extracting selected IO list
         {
+            serialLineName.Clear();
+            tag.Clear();
+            description.Clear();
+            serialAdress.Clear();
+            verifiedTest.Clear();
+            sLoopTypical.Clear();
+            tagColors.Clear();
+            engUnit.Clear();
+            engRangeHigh.Clear();
+            engRangeLow.Clear();
+            serialLineHigh.Clear();
+            serialLineLow.Clear();
+            comboBoxSerialLine.Items.Clear();
+            comboBoxSerialLine.Text = "";
+            listViewSignals.Items.Clear();
+            for (int i = 1; i < datastore.HoldingRegisters.Count; i++)
+            {
+                datastore.HoldingRegisters[i] = (ushort)0;
+            }
             string querystring = "SELECT Io_List.S_Serial_Line_Name, Io_List.S_Instrument_Tag, Io_List.S_Description, Io_List.S_Serial_Line_Address, Io_List.S_Eng_Units, Io_List.S_Eng_Range_Low, Io_List.S_Eng_Range_High, Io_List.S_Serial_Line_Range_Low, Io_List.S_Serial_Line_Range_High, Io_List.W_Citect_Test, Io_List.S_Loop_Typical\r\nFROM Io_List\r\nWHERE (((Io_List.S_Serial_Line_Name) Is Not Null))\r\nORDER BY Io_List.S_Instrument_Tag ASC;";
             using OleDbConnection connection = new OleDbConnection($"Provider=Microsoft.ACE.OLEDB.12.0;Data Source={filepath};Persist Security Info=False;");
             using OleDbCommand command = new OleDbCommand(querystring, connection);
@@ -220,7 +249,7 @@ namespace Bachelor_Test
         }
 
 
-        private void comboBoxSerialLine_SelectedIndexChanged(object sender, EventArgs e) //Puts every signal under specified serial line in the listview
+        private void comboBoxSerialLine_SelectedIndexChanged(object sender, EventArgs e)
         {
             listViewSignals.Items.Clear();
             string serialLineSelected = comboBoxSerialLine.Text;
@@ -229,15 +258,19 @@ namespace Bachelor_Test
             {
                 if (serialLineName[i] == serialLineSelected)
                 {
-                    textBuilder += tag[i].ToString();
-                    textBuilder += " ";
-                    textBuilder += sLoopTypical[i].ToString();
-                    listViewSignals.Items.Add(textBuilder).BackColor = tagColors[i];
+                    textBuilder = tag[i].ToString() + " " + sLoopTypical[i].ToString();
 
+                    ListViewItem item = new ListViewItem(textBuilder);
+                    item.BackColor = tagColors[i]; // Assign background color
+
+                    // Optionally add subitems if needed
+                    // item.SubItems.Add(otherSubItem);
+
+                    listViewSignals.Items.Add(item);
                 }
-                textBuilder = string.Empty;
             }
         }
+
 
         private void importIOListToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -273,6 +306,8 @@ namespace Bachelor_Test
                     stopBits = comSettings.SelectedStopBits;
                     parity = comSettings.SelectedParity;
                     localIPAddress = comSettings.LocalIPAddress;
+                    rtuCommunicationChecked = comSettings.rtuCommunication;
+                    tcpCommunicationChecked = comSettings.tcpCommunication;
                     // Split the IP address into its components
                     string[] ipParts = localIPAddress.Split('.');
                     try
@@ -294,17 +329,18 @@ namespace Bachelor_Test
                 }
 
             }
-
-            if (tcpListener != null && rtuSlave != null)
-            {
-                StopSimulator();
-                StartSimulator();
-            }
         }
 
         private void btnStartSimulator_Click(object sender, EventArgs e)
         {
-            StartSimulator();
+            if (tcpCommunicationChecked)
+            {
+                StartTCPSimulator();
+            }
+            if (rtuCommunicationChecked)
+            {
+                StartRTUSimulator();
+            }
 
         }
 
@@ -312,8 +348,7 @@ namespace Bachelor_Test
         {
             StopSimulator();
         }
-
-        private void StartSimulator()
+        private void StartTCPSimulator()
         {
             // Starting TCP server
             if (serverIpAdress == null)
@@ -361,7 +396,15 @@ namespace Bachelor_Test
                     MessageBox.Show($"Error: {ex.Message}");
                 }
 
+                if (tcpSlave != null)
+                {
+                    CheckboxConnected.Checked = true;
+                }
+
             }
+        }
+        private void StartRTUSimulator()
+        {
 
             // Starting RTU slave
             if (string.IsNullOrEmpty(comPort))
@@ -408,7 +451,7 @@ namespace Bachelor_Test
                 {
                     MessageBox.Show($"Error: {ex.Message}");
                 }
-                if (rtuSlave != null && tcpSlave != null)
+                if (rtuSlave != null)
                 {
                     CheckboxConnected.Checked = true;
                 }
@@ -570,7 +613,7 @@ namespace Bachelor_Test
             }
             int currentIndex = listViewSignals.SelectedItems[0].Index;
             int nextIndex = currentIndex + 1;
-            if(nextIndex  < listViewSignals.Items.Count)
+            if (nextIndex < listViewSignals.Items.Count)
             {
                 listViewSignals.Items[currentIndex].Selected = false;
                 listViewSignals.Items[currentIndex].Focused = false;
@@ -643,11 +686,19 @@ namespace Bachelor_Test
 
         private void InitializeWatchdog(int interval)
         {
-            if (rtuSlave != null && tcpSlave != null)
+            // Check if either RTU or TCP communication is active
+            if (rtuSlave != null || tcpSlave != null)
             {
                 // Subscribe to the ModbusSlaveRequestReceived event for both TCP and RTU slaves
-                rtuSlave.ModbusSlaveRequestReceived += OnRtuModbusSlaveRequestReceived;
-                tcpSlave.ModbusSlaveRequestReceived += OnTcpModbusSlaveRequestReceived;
+                if (rtuSlave != null)
+                {
+                    rtuSlave.ModbusSlaveRequestReceived += OnRtuModbusSlaveRequestReceived;
+                }
+                if (tcpSlave != null)
+                {
+                    tcpSlave.ModbusSlaveRequestReceived += OnTcpModbusSlaveRequestReceived;
+                }
+
                 // Initialize the watchdog timer
                 _watchdogTimer = new System.Windows.Forms.Timer();
                 _watchdogTimer.Interval = interval;
@@ -666,8 +717,8 @@ namespace Bachelor_Test
             {
                 MessageBox.Show("Cannot start the watchdog, communication channels have not been opened");
             }
-
         }
+
 
         private void OnRtuModbusSlaveRequestReceived(object sender, ModbusSlaveRequestEventArgs e)
         {
@@ -681,7 +732,7 @@ namespace Bachelor_Test
 
         private void WatchdogTimer_Tick(object sender, EventArgs e)
         {
-            if (_rtuRequestReceived && _tcpRequestReceived)
+            if (_rtuRequestReceived || _tcpRequestReceived)
             {
                 // Both RTU and TCP requests have been received within the interval
                 watchDog++;
@@ -716,7 +767,20 @@ namespace Bachelor_Test
                         isRestarting = true;
                         currentRestartAttempts++;
                         StopSimulator();
-                        StartSimulator();
+
+                        // Update the last communication time right before restarting communication
+                        lastCommunicationTime = DateTime.Now;
+
+                        // Restart the communication (RTU or TCP)
+                        if (rtuCommunicationChecked)
+                        {
+                            StartRTUSimulator();
+                        }
+                        if (tcpCommunicationChecked)
+                        {
+                            StartTCPSimulator();
+                        }
+
                         restartTimer.Start();
                     }
                     else if (currentRestartAttempts >= MaxRestartAttempts && !isAlarmDisplayed)
@@ -728,6 +792,7 @@ namespace Bachelor_Test
                 }
             }
 
+            // Reset flags after processing
             _rtuRequestReceived = false;
             _tcpRequestReceived = false;
         }
@@ -792,31 +857,31 @@ namespace Bachelor_Test
 
                 try
                 {
-                    string registerAdressRaw = txtAdress.Text;
-                    string registerAdressSubstring;
-                    double registerAdress = 0;
+                    string registerAddressRaw = txtAdress.Text;
+                    string registerAddressSubstring;
+                    double registerAddress = 0;
 
-                    if (registerAdressRaw.Contains("."))
+                    if (registerAddressRaw.Contains("."))
                     {
-                        registerAdressSubstring = registerAdressRaw.Substring(0, registerAdressRaw.IndexOf("."));
-                        registerAdress = double.Parse(registerAdressSubstring) - 40000; // Adjusting for the leading number
+                        registerAddressSubstring = registerAddressRaw.Substring(0, registerAddressRaw.IndexOf("."));
+                        registerAddress = double.Parse(registerAddressSubstring) - 40000; // Adjusting for the leading number
                     }
                     else
                     {
-                        registerAdressSubstring = registerAdressRaw;
-                        registerAdress = double.Parse(registerAdressRaw) - 40000; // Adjusting for the leading number
+                        registerAddressSubstring = registerAddressRaw;
+                        registerAddress = double.Parse(registerAddressRaw) - 40000; // Adjusting for the leading number
                     }
 
                     if (cbPlusRegister.Checked && !cbMinusRegister.Checked)
                     {
-                        registerAdress += 1;
+                        registerAddress += 1;
                     }
                     else if (cbMinusRegister.Checked && !cbPlusRegister.Checked)
                     {
-                        registerAdress -= 1;
+                        registerAddress -= 1;
                     }
 
-                    ushort startAddress = (ushort)registerAdress;
+                    ushort startAddress = (ushort)registerAddress;
                     string addressValue = txtHoldingValue.Text;
                     int adrValue = Convert.ToInt32(addressValue);
                     bool BitAdress = addressValue.Contains(".");
@@ -831,11 +896,11 @@ namespace Bachelor_Test
 
 
 
-                    if (tcpSlave != null && tcpSlave.DataStore != null) //Ensures that the TCP server is initialized
+                    if (tcpSlave != null || rtuSlave != null) //Ensures that either RTU or TCP slaves have been started
                     {
-                        if (registerAdressRaw.Contains(".")) //If dotted extracts the number after the dot
+                        if (registerAddressRaw.Contains(".")) //If dotted extracts the number after the dot
                         {
-                            int dotAdress = int.Parse(registerAdressRaw.Substring(registerAdressRaw.IndexOf(".") + 1));
+                            int dotAdress = int.Parse(registerAddressRaw.Substring(registerAddressRaw.IndexOf(".") + 1));
                             BittCounter bittCounter = new BittCounter(dotAdress, adrValue);
                             uSendRawData = bittCounter.BittMassage;
                         }
@@ -857,35 +922,11 @@ namespace Bachelor_Test
                             uSendRawData = (ushort)rawData;
                         }
 
-                        tcpSlave.DataStore.HoldingRegisters[startAddress] = uSendRawData;
+                        datastore.HoldingRegisters[startAddress] = uSendRawData;
                     }
 
 
-                    if (rtuSlave != null && rtuSlave.DataStore != null)  // Ensure the RTU Modbus Slave is initialized
-                    {
-
-                        if (registerAdressRaw.Contains("."))
-                        {
-                            int dotAdress = int.Parse(registerAdressRaw.Substring(registerAdressRaw.IndexOf(".") + 1));
-                            BittCounter bittCounter = new BittCounter(dotAdress, adrValue);
-                            uSendRawData = bittCounter.BittMassage;
-                        }
-                        else if (adrValue < 0) //Calculation if negative number is to be saved
-                        {
-                            Scale = serialLow / sensorLow;
-                            rawData = Scale * adrValue;
-                            sendRawData = rawData + 65536;
-                            uSendRawData = (ushort)sendRawData;
-                        }
-                        else
-                        {
-                            Scale = serialHigh / sensorHigh;
-                            rawData = Scale * adrValue;
-                            uSendRawData = (ushort)rawData;
-                        }
-
-                        rtuSlave.DataStore.HoldingRegisters[startAddress] = uSendRawData;
-                    }
+                    e.Handled = true;
                 }
                 catch (FormatException)
                 {
@@ -934,6 +975,56 @@ namespace Bachelor_Test
             }
             txtHoldingValue.Text = string.Empty;
         }
+
+        private void listViewSignals_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Up || e.KeyCode == Keys.Down)
+            {
+                // Trigger the same behavior as mouse click selection change
+                changeTagInformation();
+            }
+        }
+
+        private void listViewSignals_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            changeTagInformation();
+        }
+
+        private void listViewSignals_DrawItem(object sender, DrawListViewItemEventArgs e)
+        {
+            // If the item is selected, we add a border or highlight to show it's selected
+            if (e.Item.Selected)
+            {
+                // Draw the original background (green) for the selected item
+                e.Graphics.FillRectangle(new SolidBrush(e.Item.BackColor), e.Bounds);
+
+                // Enhance the border by making it thicker and using a different color
+                using (Pen highlightPen = new Pen(Color.DarkBlue, 6))  // Dark orange with thickness of 4
+                {
+                    // Draw the selected item's border with a thicker pen
+                    e.Graphics.DrawRectangle(highlightPen, e.Bounds);
+                }
+
+                // Draw the text in black (you can change this if you want a different text color)
+                e.Graphics.DrawString(e.Item.Text, e.Item.Font, Brushes.Black, e.Bounds);
+            }
+            else
+            {
+                // For non-selected items, just draw them normally
+                e.Graphics.FillRectangle(new SolidBrush(e.Item.BackColor), e.Bounds);
+                e.Graphics.DrawString(e.Item.Text, e.Item.Font, new SolidBrush(e.Item.ForeColor), e.Bounds);
+            }
+        }
+
+        private void listViewSignals_DrawSubItem(object sender, DrawListViewSubItemEventArgs e)
+        {
+            // Draw subitem text with original color, no change needed for subitems
+            e.Graphics.DrawString(e.SubItem.Text, e.Item.Font, Brushes.Black, e.Bounds);
+        }
+
+
+
+
     }
 }
 
