@@ -13,6 +13,7 @@ namespace Bachelor_Test
     // Class for design of the COM Port settings MessageBox
     public class COMPortSettingsMessageBox : Form
     {
+        //Variables that main program needs to fetch
         public string SlaveID { get; private set; }
         public string SelectedCOMPort { get; private set; }
         public int SelectedBaudRate { get; private set; }
@@ -155,6 +156,7 @@ namespace Bachelor_Test
             tcpCheckLabel.Location = new Point(340, 60);
             tcpCheckLabel.AutoSize = true;
 
+            //When OK is pressed, variables are stored in class. Main program can fetch these variables
             Button okButton = new Button();
             okButton.Text = "OK";
             okButton.Height = 30;

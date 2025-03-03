@@ -8,98 +8,98 @@ namespace Bachelor_Test
 {
     internal class BittCounter
     {
-        //This class makes calculations based on the number of the bit that needs changing
-        public ushort BittMassage { get; private set; }
+        //This class makes calculations based on the number of the bit that is getting changed by operator
+        public ushort bitValue { get; private set; }
 
-        public BittCounter(int dotNumber, int Value)
+        public BittCounter(int bitNumber, int value)
         {
                 try
                 {
 
-                    if (dotNumber == 0 && Value == 1)
+                    if (bitNumber == 0 && value == 1)
                     {
-                    BittMassage = 1;
+                    bitValue = 1;
 
                     }
-                    else if (dotNumber == 1 && Value == 1) 
+                    else if (bitNumber == 1 && value == 1) 
                     {
-                    BittMassage = 2;
+                    bitValue = 2;
                     
                     }
-                    else if (dotNumber == 2 && Value == 1)
+                    else if (bitNumber == 2 && value == 1)
                     {
-                    BittMassage = 4;
+                    bitValue = 4;
 
                     }
-                    else if (dotNumber == 3 && Value == 1)
+                    else if (bitNumber == 3 && value == 1)
                     {
-                    BittMassage = 8;
+                    bitValue = 8;
 
                     }
-                    else if (dotNumber == 4 && Value == 1)
+                    else if (bitNumber == 4 && value == 1)
                     {
-                    BittMassage = 16;
+                    bitValue = 16;
 
                     }
-                    else if (dotNumber == 5 && Value == 1)
+                    else if (bitNumber == 5 && value == 1)
                     {
-                    BittMassage = 32;
+                    bitValue = 32;
 
                     }
-                    else if (dotNumber == 6 && Value == 1)
+                    else if (bitNumber == 6 && value == 1)
                     {
-                    BittMassage = 64;
+                    bitValue = 64;
 
                     }
-                    else if (dotNumber == 7 && Value == 1)
+                    else if (bitNumber == 7 && value == 1)
                     {
-                    BittMassage = 128;
+                    bitValue = 128;
 
                     }
-                    else if (dotNumber == 8 && Value == 1)
+                    else if (bitNumber == 8 && value == 1)
                     {
-                    BittMassage = 256;
+                    bitValue = 256;
 
                     }
-                    else if (dotNumber == 9 && Value == 1)
+                    else if (bitNumber == 9 && value == 1)
                     {
-                    BittMassage = 512;
+                    bitValue = 512;
 
                     }
-                    else if (dotNumber == 10 && Value == 1)
+                    else if (bitNumber == 10 && value == 1)
                     {
-                    BittMassage = 1024;
+                    bitValue = 1024;
 
                     }
-                    else if (dotNumber == 11 && Value == 1)
+                    else if (bitNumber == 11 && value == 1)
                     {
-                    BittMassage = 2048;
+                    bitValue = 2048;
 
                     }
-                    else if (dotNumber == 12 && Value == 1)
+                    else if (bitNumber == 12 && value == 1)
                     {
-                    BittMassage = 4096;
+                    bitValue = 4096;
 
                     }
-                    else if (dotNumber == 13 && Value == 1)
+                    else if (bitNumber == 13 && value == 1)
                     {
-                    BittMassage = 8192;
+                    bitValue = 8192;
 
                     }
-                    else if (dotNumber == 14 && Value == 1)
+                    else if (bitNumber == 14 && value == 1)
                     {
-                    BittMassage = 16384;
+                    bitValue = 16384;
 
                     }
-                    else if (dotNumber == 15 && Value == 1)
+                    else if (bitNumber == 15 && value == 1)
                     {
-                    BittMassage = 32768;
+                    bitValue = 32768;
 
                     }
 
                     else
                     {
-                    BittMassage = 0;
+                    bitValue = 0;
                     }
 
 

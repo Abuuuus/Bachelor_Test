@@ -35,7 +35,7 @@ namespace Bachelor_Test
         private List<string> serialLineLow = new List<string>();
         private List<string> serialLineHigh = new List<string>();
         private List<string> serialLineName = new List<string>();
-        private List<string> verifiedTest = new List<string>(); // Verifing if tag is OK or not OK under testing. 
+        private List<string> verifiedTest = new List<string>(); 
         private List<string> sLoopTypical = new List<string>();
         private List<Color> tagColors = new List<Color>(); //Storing the color based on IO list
         private byte slaveID = 1; //Default slaveID 1
@@ -61,8 +61,8 @@ namespace Bachelor_Test
         private DateTime lastCommunicationTime;
         private bool isRestarting = false;
         private System.Windows.Forms.Timer restartTimer;
-        private const int CommunicationTimeout = 5000; // 5 seconds
-        private const int RestartDelay = 3000; // 3 seconds
+        private const int CommunicationTimeout = 5000; 
+        private const int RestartDelay = 3000; 
         private bool tcpCommunicationChecked;
         private bool rtuCommunicationChecked;
 
@@ -77,7 +77,7 @@ namespace Bachelor_Test
 
         }
 
-        //Makes sure holding register value is changed when toggle is pressed
+        //Button for toggling the dot addresses on and off based on what it already is
         private void btnToggleValue(object sender, EventArgs e)
         {
             try
@@ -90,6 +90,7 @@ namespace Bachelor_Test
                 ushort currentValue;
                 ushort tempCurrentValue;
                 BittCounter bittCounter;
+                //Checking if it is a dot address, if not exit the method
                 if (registerAddressRaw.Contains("."))
                 {
                     dotAddress = int.Parse(registerAddressRaw.Substring(registerAddressRaw.IndexOf(".") + 1));
@@ -130,7 +131,7 @@ namespace Bachelor_Test
                     MessageBox.Show("Invalid register address.");
                     return;
                 }
-                ushort newValue = (currentValue == 0) ? bittCounter.BittMassage : (ushort)0;
+                ushort newValue = (currentValue == 0) ? bittCounter.bitValue : (ushort)0;
                 // Update the holding register with the new value
                 tcpSlave.DataStore.HoldingRegisters[(ushort)registerAddress] = newValue;
             }
@@ -153,6 +154,7 @@ namespace Bachelor_Test
 
         private void connectToDatabase(string filepath) //Method for extracting selected IO list
         {
+            //Clearing old IO list information in variables and GUI
             serialLineName.Clear();
             tag.Clear();
             description.Clear();
@@ -168,10 +170,12 @@ namespace Bachelor_Test
             comboBoxSerialLine.Items.Clear();
             comboBoxSerialLine.Text = "";
             listViewSignals.Items.Clear();
+            //Clearing the values in the holding register setting them all to 0
             for (int i = 1; i < datastore.HoldingRegisters.Count; i++)
             {
                 datastore.HoldingRegisters[i] = (ushort)0;
             }
+            //Setting query needed for extracting correct information
             string querystring = "SELECT Io_List.S_Serial_Line_Name, Io_List.S_Instrument_Tag, Io_List.S_Description, Io_List.S_Serial_Line_Address, Io_List.S_Eng_Units, Io_List.S_Eng_Range_Low, Io_List.S_Eng_Range_High, Io_List.S_Serial_Line_Range_Low, Io_List.S_Serial_Line_Range_High, Io_List.W_Citect_Test, Io_List.S_Loop_Typical\r\nFROM Io_List\r\nWHERE (((Io_List.S_Serial_Line_Name) Is Not Null))\r\nORDER BY Io_List.S_Instrument_Tag ASC;";
             using OleDbConnection connection = new OleDbConnection($"Provider=Microsoft.ACE.OLEDB.12.0;Data Source={filepath};Persist Security Info=False;");
             using OleDbCommand command = new OleDbCommand(querystring, connection);
@@ -248,7 +252,7 @@ namespace Bachelor_Test
 
         }
 
-
+        //Depending on serial line selected, correct tags will be filled in the list
         private void comboBoxSerialLine_SelectedIndexChanged(object sender, EventArgs e)
         {
             listViewSignals.Items.Clear();
@@ -263,15 +267,13 @@ namespace Bachelor_Test
                     ListViewItem item = new ListViewItem(textBuilder);
                     item.BackColor = tagColors[i]; // Assign background color
 
-                    // Optionally add subitems if needed
-                    // item.SubItems.Add(otherSubItem);
 
                     listViewSignals.Items.Add(item);
                 }
             }
         }
 
-
+        
         private void importIOListToolStripMenuItem_Click(object sender, EventArgs e)
         {
             FileDialogDB.InitialDirectory = "C:\\Marine\\Projects";
@@ -290,6 +292,7 @@ namespace Bachelor_Test
 
         }
 
+        //When settings dialog is closed, fetch variables from class storing them
         private void settingsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             string localIPAddress;
@@ -331,6 +334,7 @@ namespace Bachelor_Test
             }
         }
 
+        
         private void btnStartSimulator_Click(object sender, EventArgs e)
         {
             if (tcpCommunicationChecked)
@@ -348,9 +352,10 @@ namespace Bachelor_Test
         {
             StopSimulator();
         }
+
+        //Starting the TCP side of simulator
         private void StartTCPSimulator()
         {
-            // Starting TCP server
             if (serverIpAdress == null)
             {
                 MessageBox.Show("Could not find the local IP address, make sure network card is set up correctly");
@@ -403,6 +408,8 @@ namespace Bachelor_Test
 
             }
         }
+        
+        //Starting RTU side of simulator
         private void StartRTUSimulator()
         {
 
@@ -524,6 +531,7 @@ namespace Bachelor_Test
             }
         }
 
+        //Inputting NOT OK in IO list for selected tag
         private void btnResultNotOKClick(object sender, EventArgs e)
         {
             string newValueOK = "Not OK";
@@ -536,10 +544,10 @@ namespace Bachelor_Test
             }
             else
             {
-                string filepath = stringPath;  // Hent filbanen valgt av brukeren
+                string filepath = stringPath;  //Use existing path
                 if (string.IsNullOrEmpty(stringPath))
                 {
-                    MessageBox.Show("Filbane er ikke satt! Velg en database først.");
+                    MessageBox.Show("Cannot input any information when you have not selected a IO list");
                     return;
                 }
                 string updateQuery = "UPDATE Io_List SET W_Citect_Test = @newValue WHERE S_Serial_Line_Address = @serialLineAddress;";
@@ -547,13 +555,10 @@ namespace Bachelor_Test
                 using (OleDbConnection connection = new OleDbConnection($"Provider=Microsoft.ACE.OLEDB.12.0;Data Source={filepath};Persist Security Info=False;"))
                 using (OleDbCommand cmd = new OleDbCommand(updateQuery, connection))
                 {
-                    // Legg til parameteren for den nye verdien
                     cmd.Parameters.AddWithValue("@newValue", newValueOK);
 
-                    // Legg til parameteren for den valgte raden
                     cmd.Parameters.AddWithValue("@serialLineAddress", selectedSerialAddress);
 
-                    // �pne forbindelsen og kj�r sp�rringen
                     connection.Open();
                     int rowsAffected = cmd.ExecuteNonQuery();
 
@@ -569,6 +574,7 @@ namespace Bachelor_Test
             }
         }
 
+        //Inputting OK in IO list for selected tag
         private void btnResultOKClick(object sender, EventArgs e)
         {
             string newValueOK = "OK";
@@ -576,15 +582,15 @@ namespace Bachelor_Test
 
             if (string.IsNullOrEmpty(selectedSerialAddress))
             {
-                MessageBox.Show("Ingen rad valgt!");
+                MessageBox.Show("No row selected");
 
             }
             else
             {
-                string filepath = stringPath;  // Hent filbanen valgt av brukeren
+                string filepath = stringPath;  //Using existing path
                 if (string.IsNullOrEmpty(stringPath))
                 {
-                    MessageBox.Show("Filbane er ikke satt! Velg en database først.");
+                    MessageBox.Show("Cannot input any information when you have not selected a IO list");
                     return;
                 }
                 string updateQuery = "UPDATE Io_List SET W_Citect_Test = @newValue WHERE S_Serial_Line_Address = @serialLineAddress;";
@@ -592,13 +598,10 @@ namespace Bachelor_Test
                 using (OleDbConnection connection = new OleDbConnection($"Provider=Microsoft.ACE.OLEDB.12.0;Data Source={filepath};Persist Security Info=False;"))
                 using (OleDbCommand cmd = new OleDbCommand(updateQuery, connection))
                 {
-                    // Legg til parameteren for den nye verdien
                     cmd.Parameters.AddWithValue("@newValue", newValueOK);
 
-                    // Legg til parameteren for den valgte raden
                     cmd.Parameters.AddWithValue("@serialLineAddress", selectedSerialAddress);
 
-                    // �pne forbindelsen og kj�r sp�rringen
                     connection.Open();
                     int rowsAffected = cmd.ExecuteNonQuery();
 
@@ -625,7 +628,7 @@ namespace Bachelor_Test
 
         }
 
-
+        //Updating the scaling when user inputs something
         private void txtHoldingValue_TextChanged(object sender, EventArgs e)
         {
             int busScaleLow;
@@ -663,6 +666,7 @@ namespace Bachelor_Test
             }
         }
 
+        //Opening user manual
         private void HelpUserManualClick(object sender, EventArgs e)
         {
             string pdfPath = Path.Combine(Application.StartupPath, "FullstendigCV_Automasjonsingeniør.pdf");
@@ -850,6 +854,7 @@ namespace Bachelor_Test
             }
         }
 
+        //Changing the value in the holding register when ENTER is pressed
         private void txtHoldingValue_KeyPress(object sender, KeyPressEventArgs e)
         {
             if (e.KeyChar == (char)Keys.Enter)
@@ -902,7 +907,7 @@ namespace Bachelor_Test
                         {
                             int dotAdress = int.Parse(registerAddressRaw.Substring(registerAddressRaw.IndexOf(".") + 1));
                             BittCounter bittCounter = new BittCounter(dotAdress, adrValue);
-                            uSendRawData = bittCounter.BittMassage;
+                            uSendRawData = bittCounter.bitValue;
                         }
                         else if (adrValue < 0 && serialLow != 0)
                         {
@@ -948,6 +953,7 @@ namespace Bachelor_Test
             changeTagInformation();
         }
 
+        //Updating the information about the tag in the appropriate textboxes
         private void changeTagInformation()
         {
             if (listViewSignals.SelectedItems.Count > 0)
@@ -976,6 +982,7 @@ namespace Bachelor_Test
             txtHoldingValue.Text = string.Empty;
         }
 
+        //Functionality for pressing arrow up and arrow down to switch tag
         private void listViewSignals_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Up || e.KeyCode == Keys.Down)
@@ -990,6 +997,7 @@ namespace Bachelor_Test
             changeTagInformation();
         }
 
+        //Making the custom colors when selecting a tag in the listview
         private void listViewSignals_DrawItem(object sender, DrawListViewItemEventArgs e)
         {
             // If the item is selected, we add a border or highlight to show it's selected
