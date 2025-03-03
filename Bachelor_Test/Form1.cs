@@ -18,6 +18,9 @@ namespace Bachelor_Test
 {
     public partial class Form1 : Form
     {
+        /// <summary>
+        /// 
+        /// </summary>
         //Data types needed across the class
         private CancellationTokenSource cts;
         private CancellationTokenSource cts2;
