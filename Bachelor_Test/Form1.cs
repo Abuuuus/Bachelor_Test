@@ -53,9 +53,9 @@ namespace Bachelor_Test
         private bool comTcpOK = false;
         private int watchDog = 0;
         private static DateTime _lastRequestTime;
-        private static System.Windows.Forms.Timer _watchdogTimer;
-        private bool _rtuRequestReceived = false;
-        private bool _tcpRequestReceived = false;
+        private static System.Windows.Forms.Timer watchdogTimer;
+        private bool rtuRequestReceived = false;
+        private bool tcpRequestReceived = false;
         private bool isAlarmDisplayed = false;
         private DateTime _lastCommunicationTime;
         private bool _isRestarting = false;
@@ -80,7 +80,6 @@ namespace Bachelor_Test
 
         }
 
-        //Button for toggling the dot addresses on and off based on what it already is
         private void btnToggleValue(object sender, EventArgs e)
         {
             try
@@ -93,7 +92,8 @@ namespace Bachelor_Test
                 ushort currentValue;
                 ushort tempCurrentValue;
                 BittCounter bittCounter;
-                //Checking if it is a dot address, if not exit the method
+
+                // Checking if it is a dot address, if not exit the method
                 if (registerAddressRaw.Contains("."))
                 {
                     dotAddress = int.Parse(registerAddressRaw.Substring(registerAddressRaw.IndexOf(".") + 1));
@@ -111,22 +111,16 @@ namespace Bachelor_Test
                 {
                     registerAddress -= 1;
                 }
-                //DEN KRESJER UNDER HER, FIKS SENERE
-                if (tcpSlave?.DataStore?.HoldingRegisters == null)
+
+                // Check if the simulator has been started
+                if (datastore?.HoldingRegisters == null)
                 {
                     MessageBox.Show("The simulator has not been started, so you cannot change registers", "Error");
                     return;
                 }
+
+                // Get the current value of the register
                 currentValue = tcpSlave.DataStore.HoldingRegisters[(ushort)registerAddress];
-                if (currentValue == 0)
-                {
-                    tempCurrentValue = 1;
-                }
-                else
-                {
-                    tempCurrentValue = currentValue;
-                }
-                bittCounter = new BittCounter(dotAddress, tempCurrentValue);
 
                 // Ensure the register address is within the valid range
                 if (registerAddress < 0 || registerAddress >= tcpSlave.DataStore.HoldingRegisters.Count)
@@ -134,9 +128,16 @@ namespace Bachelor_Test
                     MessageBox.Show("Invalid register address.");
                     return;
                 }
-                ushort newValue = (currentValue == 0) ? bittCounter.bitValue : (ushort)0;
-                // Update the holding register with the new value
+
+                // Create the bitmask for the specific bit to toggle
+                ushort mask = (ushort)(1 << dotAddress);
+
+                // Toggle the bit using XOR operation
+                ushort newValue = (ushort)(currentValue ^ mask);
+
+                // Update the holding register with the new value (after toggling the bit)
                 tcpSlave.DataStore.HoldingRegisters[(ushort)registerAddress] = newValue;
+
             }
             catch (FormatException)
             {
@@ -151,6 +152,7 @@ namespace Bachelor_Test
                 MessageBox.Show($"An unexpected error occurred: {ex.Message}", "Error");
             }
         }
+
 
 
 
@@ -380,6 +382,8 @@ namespace Bachelor_Test
                     // Create the Modbus TCP slave using the default listener
                     tcpSlave = ModbusTcpSlave.CreateTcp(slaveID, tcpListener);
                     tcpSlave.DataStore = datastore; // Assign the TCP DataStore
+                    lastCommunicationTime = DateTime.Now;
+                    tcpSlave.ModbusSlaveRequestReceived += OnTcpModbusSlaveRequestReceived;
 
                     // Listen for incoming requests on a separate thread
                     Task.Run(() =>
@@ -404,10 +408,6 @@ namespace Bachelor_Test
                     MessageBox.Show($"Error: {ex.Message}");
                 }
 
-                if (tcpSlave != null)
-                {
-                    CheckboxConnected.Checked = true;
-                }
 
             }
         }
@@ -439,8 +439,11 @@ namespace Bachelor_Test
                     rtuSlave.DataStore = datastore;
 
                     cts2 = new CancellationTokenSource();
+                    lastCommunicationTime = DateTime.Now;
+                    rtuSlave.ModbusSlaveRequestReceived += OnTcpModbusSlaveRequestReceived;
 
                     // Run Listen on a separate task
+                    MessageBox.Show("RTU Communication starting, it might take some time before it is connected");
                     Task.Run(() =>
                     {
                         try
@@ -460,10 +463,6 @@ namespace Bachelor_Test
                 catch (Exception ex)
                 {
                     MessageBox.Show($"Error: {ex.Message}");
-                }
-                if (rtuSlave != null)
-                {
-                    CheckboxConnected.Checked = true;
                 }
             }
         }
@@ -707,10 +706,10 @@ namespace Bachelor_Test
                 }
 
                 // Initialize the watchdog timer
-                _watchdogTimer = new System.Windows.Forms.Timer();
-                _watchdogTimer.Interval = interval;
-                _watchdogTimer.Tick += WatchdogTimer_Tick;
-                _watchdogTimer.Start();
+                watchdogTimer = new System.Windows.Forms.Timer();
+                watchdogTimer.Interval = interval;
+                watchdogTimer.Tick += WatchdogTimer_Tick;
+                watchdogTimer.Start();
 
                 // Initialize the restart timer
                 restartTimer = new System.Windows.Forms.Timer();
@@ -722,28 +721,100 @@ namespace Bachelor_Test
             }
             else
             {
+                txtWatchdogAddress.ReadOnly = false;
+                btnWatchdogStart.Text = "Start";
                 MessageBox.Show("Cannot start the watchdog, communication channels have not been opened");
             }
         }
 
 
+        private CancellationTokenSource cancelUncheckTokenSource;
+
         private void OnRtuModbusSlaveRequestReceived(object sender, ModbusSlaveRequestEventArgs e)
         {
-            _rtuRequestReceived = true;
+            rtuRequestReceived = true;
+            lastCommunicationTime = DateTime.Now;
+
+            if (!IsHandleCreated || IsDisposed) return;
+
+            try
+            {
+                Invoke(new Action(() =>
+                {
+                    if (!IsDisposed) CheckboxConnected.Checked = true;
+                }));
+            }
+            catch (ObjectDisposedException) { }
+
+            // Start delayed uncheck task
+            StartDelayedUncheck();
         }
 
         private void OnTcpModbusSlaveRequestReceived(object sender, ModbusSlaveRequestEventArgs e)
         {
-            _tcpRequestReceived = true;
+            tcpRequestReceived = true;
+            lastCommunicationTime = DateTime.Now;
+
+            if (!IsHandleCreated || IsDisposed) return;
+
+            try
+            {
+                Invoke(new Action(() =>
+                {
+                    if (!IsDisposed) CheckboxConnected.Checked = true;
+                }));
+            }
+            catch (ObjectDisposedException) { }
+
+            // Start delayed uncheck task
+            StartDelayedUncheck();
         }
+
+        private void StartDelayedUncheck()
+        {
+            // Cancel any previous uncheck task
+            cancelUncheckTokenSource?.Cancel();
+            cancelUncheckTokenSource = new CancellationTokenSource();
+            var token = cancelUncheckTokenSource.Token;
+
+            Task.Delay(2000, token) // Wait 5 seconds
+                .ContinueWith(t =>
+                {
+                    if (!t.IsCanceled)
+                    {
+                        TimeSpan timeSinceLastRequest = DateTime.Now - lastCommunicationTime;
+                        if (timeSinceLastRequest.TotalSeconds >= 2)
+                        {
+                            if (!IsHandleCreated || IsDisposed) return;
+
+                            try
+                            {
+                                Invoke(new Action(() =>
+                                {
+                                    if (!IsDisposed) CheckboxConnected.Checked = false;
+                                }));
+                            }
+                            catch (ObjectDisposedException) { }
+                        }
+                    }
+                }, TaskScheduler.Default);
+        }
+
+
+
+
 
         private void WatchdogTimer_Tick(object sender, EventArgs e)
         {
-            if (_rtuRequestReceived || _tcpRequestReceived)
+            if (rtuRequestReceived || tcpRequestReceived)
             {
+                ushort addressValue = ushort.Parse(txtWatchdogAddress.Text);
                 // Both RTU and TCP requests have been received within the interval
-                watchDog++;
+                watchDog++;  // Increment the watchdog counter
 
+                datastore.HoldingRegisters[addressValue] = (ushort)watchDog;
+
+                // Update the watchdog value on the UI
                 if (txtWatchDog.InvokeRequired)
                 {
                     txtWatchDog.Invoke(new Action(() =>
@@ -756,9 +827,9 @@ namespace Bachelor_Test
                     txtWatchDog.Text = watchDog.ToString();
                 }
 
-                // Reset the alarm flag and update the last communication time
+                // Reset alarm flags and update communication time
                 isAlarmDisplayed = false;
-                lastCommunicationTime = DateTime.Now;
+                lastCommunicationTime = DateTime.Now;  // Update communication time
                 isRestarting = false;
                 currentRestartAttempts = 0;
                 restartTimer.Stop();
@@ -770,15 +841,14 @@ namespace Bachelor_Test
                 {
                     if (!isRestarting && currentRestartAttempts < MaxRestartAttempts)
                     {
-                        // Start the restart process
                         isRestarting = true;
                         currentRestartAttempts++;
                         StopSimulator();
 
-                        // Update the last communication time right before restarting communication
-                        lastCommunicationTime = DateTime.Now;
+                        // Update the last communication time
+                        lastCommunicationTime = DateTime.Now;  // Update time right before restarting
 
-                        // Restart the communication (RTU or TCP)
+                        // Restart communication
                         if (rtuCommunicationChecked)
                         {
                             StartRTUSimulator();
@@ -792,7 +862,6 @@ namespace Bachelor_Test
                     }
                     else if (currentRestartAttempts >= MaxRestartAttempts && !isAlarmDisplayed)
                     {
-                        // Display alarm message after maximum restart attempts
                         isAlarmDisplayed = true;
                         MessageBox.Show("Alarm: No Modbus requests received after multiple restart attempts.");
                     }
@@ -800,8 +869,8 @@ namespace Bachelor_Test
             }
 
             // Reset flags after processing
-            _rtuRequestReceived = false;
-            _tcpRequestReceived = false;
+            rtuRequestReceived = false;
+            tcpRequestReceived = false;
         }
 
         private void RestartTimer_Tick(object sender, EventArgs e)
@@ -819,20 +888,25 @@ namespace Bachelor_Test
             try
             {
                 int interval = int.Parse(comboBoxWatchdogInterval.Text);
+                ushort addressValue = ushort.Parse(txtWatchdogAddress.Text);
+
                 if (btnWatchdogStart.Text == "Start")
                 {
-                    InitializeWatchdog(interval);
                     btnWatchdogStart.Text = "Stop";
+                    txtWatchdogAddress.ReadOnly = true;
+
+                    // Initialize the watchdog when starting
+                    InitializeWatchdog(interval);
                 }
                 else if (btnWatchdogStart.Text == "Stop")
                 {
-                    // Check if the watchdog timer is initialized before stopping it
-                    if (_watchdogTimer != null)
+                    // Stop the watchdog timer
+                    if (watchdogTimer != null)
                     {
-                        _watchdogTimer.Stop();
+                        watchdogTimer.Stop();
                     }
 
-                    // Unsubscribe from the ModbusSlaveRequestReceived events if rtuSlave and tcpSlave are initialized
+                    // Unsubscribe from the ModbusSlaveRequestReceived events
                     if (rtuSlave != null)
                     {
                         rtuSlave.ModbusSlaveRequestReceived -= OnRtuModbusSlaveRequestReceived;
@@ -843,17 +917,18 @@ namespace Bachelor_Test
                         tcpSlave.ModbusSlaveRequestReceived -= OnTcpModbusSlaveRequestReceived;
                     }
 
-                    // Reset the watchdog counter and update the TextBox
+                    // Reset the watchdog counter only if it's a hard stop (not when restarting communication)
                     watchDog = 0;
                     txtWatchDog.Text = watchDog.ToString();
 
-                    // Reset the button text to "Start"
+                    // Reset button and UI state
                     btnWatchdogStart.Text = "Start";
+                    txtWatchdogAddress.ReadOnly = false;
                 }
             }
             catch (FormatException)
             {
-                MessageBox.Show("You must select a valid number for the interval");
+                MessageBox.Show("You must select a valid number for the interval and a address to link it");
             }
         }
 
@@ -862,7 +937,6 @@ namespace Bachelor_Test
         {
             if (e.KeyChar == (char)Keys.Enter)
             {
-
                 try
                 {
                     string registerAddressRaw = txtAdress.Text;
@@ -897,42 +971,59 @@ namespace Bachelor_Test
                     int sensorHigh = int.Parse(txtEngHigh.Text);
                     int serialLow = int.Parse(txtSerialLow.Text);
                     int serialHigh = int.Parse(txtSerialHigh.Text);
-                    ushort uSendRawData = 0;
+                    ushort registerValue = 0;
+                    ushort previousValue = 0;
                     int Scale;
                     int rawData;
                     int sendRawData;
 
-
-
-                    if (tcpSlave != null || rtuSlave != null) //Ensures that either RTU or TCP slaves have been started
+                    if (tcpSlave != null || rtuSlave != null) // Ensures that either RTU or TCP slaves have been started
                     {
-                        if (registerAddressRaw.Contains(".")) //If dotted extracts the number after the dot
+                        if (registerAddressRaw.Contains(".")) // If dotted, extracts the number after the dot
                         {
                             int dotAdress = int.Parse(registerAddressRaw.Substring(registerAddressRaw.IndexOf(".") + 1));
                             BittCounter bittCounter = new BittCounter(dotAdress, adrValue);
-                            uSendRawData = bittCounter.bitValue;
+                            registerValue = bittCounter.bitValue;
+                            previousValue = datastore.HoldingRegisters[startAddress];
+
+                            // If adrValue is 1, set the bit high
+                            if (adrValue == 1)
+                            {
+                                registerValue = (ushort)(previousValue | registerValue); // Set bit high
+                            }
+                            // If adrValue is 0, clear the bit
+                            else if (adrValue == 0)
+                            {
+                                // Create a mask to clear the specific bit
+                                ushort mask = (ushort)~(1 << dotAdress);  // Clears the specific bit based on dotAdress
+
+                                // Apply the mask to clear the bit
+                                registerValue = (ushort)(previousValue & mask);
+
+                            }
+
+                            datastore.HoldingRegisters[startAddress] = registerValue;
+                            return;
                         }
                         else if (adrValue < 0 && serialLow != 0)
                         {
                             Scale = serialLow / sensorLow;
                             rawData = Scale * adrValue;
                             sendRawData = rawData + 65536;
-                            uSendRawData = (ushort)sendRawData;
+                            registerValue = (ushort)sendRawData;
                         }
                         else if (adrValue == 0 && serialLow == 0)
                         {
-                            uSendRawData = 0;
+                            registerValue = 0;
                         }
                         else
                         {
                             Scale = serialHigh / sensorHigh;
                             rawData = Scale * adrValue;
-                            uSendRawData = (ushort)rawData;
+                            registerValue = (ushort)rawData;
                         }
-
-                        datastore.HoldingRegisters[startAddress] = uSendRawData;
+                        datastore.HoldingRegisters[startAddress] = registerValue;
                     }
-
 
                     e.Handled = true;
                 }
@@ -950,6 +1041,10 @@ namespace Bachelor_Test
                 }
             }
         }
+
+
+
+
 
         private void listViewSignals_MouseClick(object sender, MouseEventArgs e)
         {
@@ -1003,35 +1098,86 @@ namespace Bachelor_Test
         //Making the custom colors when selecting a tag in the listview
         private void listViewSignals_DrawItem(object sender, DrawListViewItemEventArgs e)
         {
-            // If the item is selected, we add a border or highlight to show it's selected
+            // Clear the area to prevent artifacts from previous selections
+            e.Graphics.FillRectangle(new SolidBrush(listViewSignals.BackColor), e.Bounds);
+
+            // If the item is selected, apply custom drawing
             if (e.Item.Selected)
             {
                 // Draw the original background (green) for the selected item
-                e.Graphics.FillRectangle(new SolidBrush(e.Item.BackColor), e.Bounds);
-
-                // Enhance the border by making it thicker and using a different color
-                using (Pen highlightPen = new Pen(Color.DarkBlue, 6))  // Dark orange with thickness of 4
+                using (SolidBrush backgroundBrush = new SolidBrush(e.Item.BackColor))
                 {
-                    // Draw the selected item's border with a thicker pen
-                    e.Graphics.DrawRectangle(highlightPen, e.Bounds);
+                    e.Graphics.FillRectangle(backgroundBrush, e.Bounds);
                 }
 
-                // Draw the text in black (you can change this if you want a different text color)
+                // Adjust the rectangle slightly to avoid overlapping with previous borders
+                Rectangle borderRect = new Rectangle(e.Bounds.X, e.Bounds.Y, e.Bounds.Width - 1, e.Bounds.Height - 1);
+
+                // Draw a thicker selection border
+                using (Pen highlightPen = new Pen(Color.DarkBlue, 6))
+                {
+                    e.Graphics.DrawRectangle(highlightPen, borderRect);
+                }
+
+                // Draw the text in black
                 e.Graphics.DrawString(e.Item.Text, e.Item.Font, Brushes.Black, e.Bounds);
             }
             else
             {
-                // For non-selected items, just draw them normally
-                e.Graphics.FillRectangle(new SolidBrush(e.Item.BackColor), e.Bounds);
+                // Redraw normal background for unselected items
+                using (SolidBrush backgroundBrush = new SolidBrush(e.Item.BackColor))
+                {
+                    e.Graphics.FillRectangle(backgroundBrush, e.Bounds);
+                }
+
                 e.Graphics.DrawString(e.Item.Text, e.Item.Font, new SolidBrush(e.Item.ForeColor), e.Bounds);
             }
         }
+
 
         private void listViewSignals_DrawSubItem(object sender, DrawListViewSubItemEventArgs e)
         {
             // Draw subitem text with original color, no change needed for subitems
             e.Graphics.DrawString(e.SubItem.Text, e.Item.Font, Brushes.Black, e.Bounds);
         }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            // Stop the Modbus listener tasks
+            if (cts != null)
+            {
+                cts.Cancel();
+                cts.Dispose();
+                cts = null;
+            }
+
+            if (cts2 != null)
+            {
+                cts2.Cancel();
+                cts2.Dispose();
+                cts2 = null;
+            }
+
+            // Stop TCP listener
+            if (tcpListener != null)
+            {
+                tcpListener.Stop();
+                tcpListener = null;
+            }
+
+            // Close and dispose SerialPort
+            if (serialport != null && serialport.IsOpen)
+            {
+                serialport.Close();
+                serialport.Dispose();
+                serialport = null;
+            }
+
+            // Prevent any remaining event handlers from trying to update UI
+            tcpRequestReceived = false;
+            rtuRequestReceived = false;
+        }
+
 
 
 
