@@ -75,6 +75,8 @@
             btnWatchdogStart = new Button();
             lbWatchdogMs = new Label();
             CheckboxConnected = new RoundCheckbox();
+            txtWatchdogAddress = new TextBox();
+            lbWatchdogAddress = new Label();
             menuStrip1.SuspendLayout();
             SuspendLayout();
             // 
@@ -451,10 +453,10 @@
             // txtWatchDog
             // 
             txtWatchDog.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            txtWatchDog.Location = new Point(289, 483);
+            txtWatchDog.Location = new Point(489, 480);
             txtWatchDog.Name = "txtWatchDog";
             txtWatchDog.ReadOnly = true;
-            txtWatchDog.Size = new Size(125, 27);
+            txtWatchDog.Size = new Size(78, 27);
             txtWatchDog.TabIndex = 41;
             // 
             // listViewSignals
@@ -484,7 +486,7 @@
             comboBoxWatchdogInterval.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             comboBoxWatchdogInterval.FormattingEnabled = true;
             comboBoxWatchdogInterval.Items.AddRange(new object[] { "100", "200", "400", "600", "800", "1000" });
-            comboBoxWatchdogInterval.Location = new Point(437, 517);
+            comboBoxWatchdogInterval.Location = new Point(525, 520);
             comboBoxWatchdogInterval.Name = "comboBoxWatchdogInterval";
             comboBoxWatchdogInterval.Size = new Size(108, 28);
             comboBoxWatchdogInterval.TabIndex = 42;
@@ -492,7 +494,7 @@
             // btnWatchdogStart
             // 
             btnWatchdogStart.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            btnWatchdogStart.Location = new Point(437, 480);
+            btnWatchdogStart.Location = new Point(573, 480);
             btnWatchdogStart.Name = "btnWatchdogStart";
             btnWatchdogStart.Size = new Size(94, 29);
             btnWatchdogStart.TabIndex = 43;
@@ -504,7 +506,7 @@
             // 
             lbWatchdogMs.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             lbWatchdogMs.AutoSize = true;
-            lbWatchdogMs.Location = new Point(550, 521);
+            lbWatchdogMs.Location = new Point(639, 523);
             lbWatchdogMs.Name = "lbWatchdogMs";
             lbWatchdogMs.Size = new Size(28, 20);
             lbWatchdogMs.TabIndex = 44;
@@ -523,11 +525,29 @@
             CheckboxConnected.Text = "Connected";
             CheckboxConnected.UseVisualStyleBackColor = true;
             // 
+            // txtWatchdogAddress
+            // 
+            txtWatchdogAddress.Location = new Point(330, 480);
+            txtWatchdogAddress.Name = "txtWatchdogAddress";
+            txtWatchdogAddress.Size = new Size(125, 27);
+            txtWatchdogAddress.TabIndex = 46;
+            // 
+            // lbWatchdogAddress
+            // 
+            lbWatchdogAddress.AutoSize = true;
+            lbWatchdogAddress.Location = new Point(262, 484);
+            lbWatchdogAddress.Name = "lbWatchdogAddress";
+            lbWatchdogAddress.Size = new Size(65, 20);
+            lbWatchdogAddress.TabIndex = 47;
+            lbWatchdogAddress.Text = "Address:";
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(954, 573);
+            Controls.Add(lbWatchdogAddress);
+            Controls.Add(txtWatchdogAddress);
             Controls.Add(CheckboxConnected);
             Controls.Add(lbWatchdogMs);
             Controls.Add(btnWatchdogStart);
@@ -624,5 +644,7 @@
         private Button btnWatchdogStart;
         private Label lbWatchdogMs;
         private RoundCheckbox CheckboxConnected;
+        private TextBox txtWatchdogAddress;
+        private Label lbWatchdogAddress;
     }
 }
