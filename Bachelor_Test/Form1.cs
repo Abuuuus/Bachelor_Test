@@ -195,9 +195,9 @@ namespace Bachelor_Test
                 try
                 {
                     serialLineName.Add(reader.GetString(0));
-                    tag.Add(reader.GetString(1));
-                    description.Add(reader.GetString(2));
-                    serialAdress.Add(reader.GetString(3));
+                    tag.Add(reader.IsDBNull(1) ? "" : reader.GetString(1));
+                    description.Add(reader.IsDBNull(2) ? "" : reader.GetString(2));
+                    serialAdress.Add(reader.IsDBNull(3) ? "" : reader.GetString(3));
                     verifiedTest.Add(reader.IsDBNull(9) ? "" : reader.GetString(9));
                     sLoopTypical.Add(reader.IsDBNull(10) ? "" : reader.GetString(10));
                     if (verifiedTest.Last().ToString() == "OK")
@@ -226,23 +226,24 @@ namespace Bachelor_Test
 
                     else
                     {
-                        engUnit.Add(reader.GetString(4));
-                        engRangeLow.Add(reader.GetString(5));
-                        engRangeHigh.Add(reader.GetString(6));
-                        serialLineLow.Add(reader.GetString(7));
-                        serialLineHigh.Add(reader.GetString(8));
+                        engUnit.Add(reader.IsDBNull(4) ? "" : reader.GetString(4));
+                        engRangeLow.Add(reader.IsDBNull(5) ? "" : reader.GetString(5));
+                        engRangeHigh.Add(reader.IsDBNull(6) ? "" : reader.GetString(6));
+                        serialLineLow.Add(reader.IsDBNull(7) ? "" : reader.GetString(7));
+                        serialLineHigh.Add(reader.IsDBNull(8) ? "" : reader.GetString(8));
 
 
                     }
 
                 }
+
                 catch (Exception e)
                 {
 
                 }
 
-
             }
+            VerifyDataIntegrity(filepath);
             foreach (string s in serialLineName)
             {
                 if (comboBoxSerialLine.Items.Contains(s))
@@ -256,6 +257,101 @@ namespace Bachelor_Test
             }
 
         }
+        private bool hasShownMessage = false; // Prevent multiple message boxes
+
+        private void VerifyDataIntegrity(string filepath)
+        {
+            if (hasShownMessage) return; // Skip if already shown
+            hasShownMessage = true;
+
+            string querystring = "SELECT S_Serial_Line_Name, S_Instrument_Tag, S_Description, S_Serial_Line_Address, " +
+                                 "S_Eng_Units, S_Eng_Range_Low, S_Eng_Range_High, S_Serial_Line_Range_Low, " +
+                                 "S_Serial_Line_Range_High, W_Citect_Test, S_Loop_Typical " +
+                                 "FROM Io_List WHERE S_Serial_Line_Name IS NOT NULL ORDER BY S_Instrument_Tag ASC;";
+
+            using (OleDbConnection connection = new OleDbConnection($"Provider=Microsoft.ACE.OLEDB.12.0;Data Source={filepath};Persist Security Info=False;"))
+            using (OleDbCommand command = new OleDbCommand(querystring, connection))
+            {
+                connection.Open();
+                using (OleDbDataReader reader = command.ExecuteReader())
+                {
+                    int index = 0;
+                    List<string> mismatches = new List<string>();
+
+                    while (reader.Read())
+                    {
+                        if (index >= serialLineName.Count) break;
+
+                        // Read values from database (handling NULL values)
+                        string dbSerialLineName = reader.IsDBNull(0) ? "" : reader.GetString(0).Trim();
+                        string dbTag = reader.IsDBNull(1) ? "" : reader.GetString(1).Trim();
+                        string dbDescription = reader.IsDBNull(2) ? "" : reader.GetString(2).Trim();
+                        string dbSerialAddress = reader.IsDBNull(3) ? "" : reader.GetString(3).Trim();
+                        string dbEngUnit = reader.IsDBNull(4) ? "" : reader.GetString(4).Trim();
+                        string dbVerifiedTest = reader.IsDBNull(9) ? "" : reader.GetString(9).Trim();
+                        string dbLoopTypical = reader.IsDBNull(10) ? "" : reader.GetString(10).Trim();
+
+                        // Read values from lists
+                        string listSerialLineName = serialLineName[index].Trim();
+                        string listTag = tag[index].Trim();
+                        string listDescription = description[index].Trim();
+                        string listSerialAddress = serialAdress[index].Trim();
+                        string listEngUnit = engUnit[index].Trim();
+                        string listVerifiedTest = verifiedTest[index].Trim();
+                        string listLoopTypical = sLoopTypical[index].Trim();
+
+                        // Check for mismatches
+                        if (dbSerialLineName != listSerialLineName ||
+                            dbTag != listTag ||
+                            dbDescription != listDescription ||
+                            dbSerialAddress != listSerialAddress ||
+                            dbEngUnit != listEngUnit ||
+                            dbVerifiedTest != listVerifiedTest ||
+                            dbLoopTypical != listLoopTypical)
+                        {
+                            mismatches.Add($"Row {index + 1} Mismatch:\n" +
+                                           $"Expected [Tag: {dbTag}, Address: {dbSerialAddress}, Desc: {dbDescription}, " +
+                                           $"Unit: {dbEngUnit}," +
+                                           $"Test: {dbVerifiedTest}, Loop: {dbLoopTypical}]\n" +
+                                           $"Found [Tag: {listTag}, Address: {listSerialAddress}, Desc: {listDescription}, " +
+                                           $"Unit: {listEngUnit}," +
+                                           $"Test: {listVerifiedTest}, Loop: {listLoopTypical}]\n");
+                        }
+
+                        index++;
+                    }
+
+                    // Check if row counts match
+                    if (index < serialLineName.Count)
+                    {
+                        mismatches.Add($"Mismatch in row count: Database has {index} rows, but list has {serialLineName.Count} rows.");
+                    }
+
+                    // Display final result in a single message box
+                    if (mismatches.Count > 0)
+                    {
+                        MessageBox.Show($"Data mismatches found:\n\n{string.Join("\n", mismatches)}",
+                                        "Data Verification",
+                                        MessageBoxButtons.OK,
+                                        MessageBoxIcon.Warning);
+                    }
+                    else
+                    {
+                        MessageBox.Show("All data matches the database!",
+                                        "Data Verification",
+                                        MessageBoxButtons.OK,
+                                        MessageBoxIcon.Information);
+                    }
+                }
+            }
+
+            hasShownMessage = false; // Reset flag for future calls
+        }
+
+
+
+
+
 
         //Depending on serial line selected, correct tags will be filled in the list
         private void comboBoxSerialLine_SelectedIndexChanged(object sender, EventArgs e)
