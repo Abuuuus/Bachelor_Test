@@ -10,7 +10,8 @@ using System.Net;
 
 namespace Bachelor_Test
 {
-    // Class for design of the COM Port settings MessageBox
+    // Class for design of the COM Port settings MessageBox. This class will create the "form" for changing settings on the COM port
+    //and IP address and store it for use in the main form
     public class COMPortSettingsMessageBox : Form
     {
         //Variables that main program needs to fetch
@@ -135,6 +136,7 @@ namespace Bachelor_Test
             newIpAddressTextBox = new TextBox();
             newIpAddressTextBox.Location = new Point(100, 240);
             newIpAddressTextBox.Width = 160;
+            newIpAddressTextBox.PlaceholderText = "xxx.xxx.xxx.xxx"; //Placeholder to display the format of IP address
 
             CheckBox rtuCheck = new CheckBox();
             rtuCheck.Height = 30;
@@ -169,6 +171,8 @@ namespace Bachelor_Test
                 SelectedDataBits = int.Parse(dataBitsComboBox.SelectedItem.ToString());
                 SelectedStopBits = (StopBits)Enum.Parse(typeof(StopBits), stopBitsComboBox.SelectedItem.ToString());
                 SelectedParity = (Parity)Enum.Parse(typeof(Parity), parityComboBox.SelectedItem.ToString());
+                //If user has not manually entered a IP address then the IP address that is fetched of ETHERNET is selected. If user has
+                //entered a IP address this will be used.
                 if(newIpAddressTextBox.Text == "")
                 {
                     LocalIPAddress = ipAddressTextBox.Text;
@@ -195,6 +199,7 @@ namespace Bachelor_Test
             cancelButton.Location = new Point(300, 250);
             cancelButton.Click += (sender, e) => this.Close();
 
+            //Adding all the controls to the form
             this.Controls.Add(slaveIdLabel);
             this.Controls.Add(slaveIdTextBox);
             this.Controls.Add(comPortLabel);

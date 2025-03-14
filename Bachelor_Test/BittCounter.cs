@@ -8,7 +8,9 @@ namespace Bachelor_Test
 {
     internal class BittCounter
     {
-        //This class makes calculations based on the number of the bit that is getting changed by operator
+        //This class makes calculations based on the number of the bit that is getting changed by user. This way the appropriate bit
+        //will be changed based on the bit number after the dot. It ensures it will only happen when user has inputted 1 in the textbox
+        //for values.
         public ushort bitValue { get; private set; }
 
         public BittCounter(int bitNumber, int value)
@@ -96,7 +98,7 @@ namespace Bachelor_Test
                     bitValue = 32768;
 
                     }
-
+                    //If user has not inputted 1 then the bit value will be 0
                     else
                     {
                     bitValue = 0;
