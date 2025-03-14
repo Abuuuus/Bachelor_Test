@@ -8,7 +8,7 @@ using System.Windows.Forms;
 
 namespace Bachelor_Test
 {
-    //Class for creating the round "connected" checkbox
+    //Class for creating the round "connected" checkbox with green background. Custom configured
     public class RoundCheckbox : CheckBox
     {
         protected override void OnPaint(PaintEventArgs e)
