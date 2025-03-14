@@ -18,9 +18,6 @@ namespace Bachelor_Test
 {
     public partial class Form1 : Form
     {
-        /// <summary>
-        /// 
-        /// </summary>
         //Data types needed across the class
         private CancellationTokenSource cts;
         private CancellationTokenSource cts2;
@@ -733,8 +730,7 @@ namespace Bachelor_Test
             int busScaleHigh;
             int engScaleLow;
             int engScaleHigh;
-            int scalingLow = 0;
-            int scalingHigh = 0;
+            int userValue;
             int rawBusValue;
 
             if (string.IsNullOrWhiteSpace(txtHoldingValue.Text))
@@ -747,20 +743,10 @@ namespace Bachelor_Test
                 int.TryParse(txtEngLow.Text, out engScaleLow) &&
                 int.TryParse(txtSerialHigh.Text, out busScaleHigh) &&
                 int.TryParse(txtEngHigh.Text, out engScaleHigh) &&
-                int.TryParse(txtHoldingValue.Text, out rawBusValue))
+                int.TryParse(txtHoldingValue.Text, out userValue))
             {
-                if (engScaleHigh != 0)
-                {
-                    scalingHigh = busScaleHigh / engScaleHigh;
-                    rawBusValue *= scalingHigh;
-                    txtRawBusValue.Text = Convert.ToString(rawBusValue);
-                }
-                else if (engScaleLow != 0)
-                {
-                    scalingLow = busScaleLow / engScaleLow;
-                    rawBusValue *= scalingLow;
-                    txtRawBusValue.Text = Convert.ToString(rawBusValue);
-                }
+                rawBusValue = busScaleLow + ((userValue-engScaleLow)*(busScaleHigh-busScaleLow)/(engScaleHigh-engScaleLow));
+                txtRawBusValue.Text = Convert.ToString(rawBusValue);
             }
         }
 
@@ -1061,34 +1047,32 @@ namespace Bachelor_Test
 
                     ushort startAddress = (ushort)registerAddress;
                     string addressValue = txtHoldingValue.Text;
-                    int adrValue = Convert.ToInt32(addressValue);
+                    int userValue = Convert.ToInt32(addressValue);
                     bool BitAdress = addressValue.Contains(".");
-                    int sensorLow = int.Parse(txtEngLow.Text);
-                    int sensorHigh = int.Parse(txtEngHigh.Text);
-                    int serialLow = int.Parse(txtSerialLow.Text);
-                    int serialHigh = int.Parse(txtSerialHigh.Text);
+                    int engScaleLow = int.Parse(txtEngLow.Text);
+                    int engScaleHigh = int.Parse(txtEngHigh.Text);
+                    int busScaleLow = int.Parse(txtSerialLow.Text);
+                    int busScaleHigh = int.Parse(txtSerialHigh.Text);
                     ushort registerValue = 0;
                     ushort previousValue = 0;
-                    int Scale;
-                    int rawData;
-                    int sendRawData;
+                    int rawBusValue = busScaleLow + ((userValue - engScaleLow) * (busScaleHigh - busScaleLow) / (engScaleHigh - engScaleLow));
 
                     if (tcpSlave != null || rtuSlave != null) // Ensures that either RTU or TCP slaves have been started
                     {
                         if (registerAddressRaw.Contains(".")) // If dotted, extracts the number after the dot
                         {
                             int dotAdress = int.Parse(registerAddressRaw.Substring(registerAddressRaw.IndexOf(".") + 1));
-                            BittCounter bittCounter = new BittCounter(dotAdress, adrValue);
+                            BittCounter bittCounter = new BittCounter(dotAdress, userValue);
                             registerValue = bittCounter.bitValue;
                             previousValue = datastore.HoldingRegisters[startAddress];
 
                             // If adrValue is 1, set the bit high
-                            if (adrValue == 1)
+                            if (userValue == 1)
                             {
                                 registerValue = (ushort)(previousValue | registerValue); // Set bit high
                             }
                             // If adrValue is 0, clear the bit
-                            else if (adrValue == 0)
+                            else if (userValue == 0)
                             {
                                 // Create a mask to clear the specific bit
                                 ushort mask = (ushort)~(1 << dotAdress);  // Clears the specific bit based on dotAdress
@@ -1099,24 +1083,15 @@ namespace Bachelor_Test
                             }
 
                             datastore.HoldingRegisters[startAddress] = registerValue;
-                            return;
                         }
-                        else if (adrValue < 0 && serialLow != 0)
+                        else if (rawBusValue < 0)
                         {
-                            Scale = serialLow / sensorLow;
-                            rawData = Scale * adrValue;
-                            sendRawData = rawData + 65536;
-                            registerValue = (ushort)sendRawData;
-                        }
-                        else if (adrValue == 0 && serialLow == 0)
-                        {
-                            registerValue = 0;
+                            rawBusValue = rawBusValue + 65536;
+                            registerValue = (ushort)rawBusValue;
                         }
                         else
                         {
-                            Scale = serialHigh / sensorHigh;
-                            rawData = Scale * adrValue;
-                            registerValue = (ushort)rawData;
+                            registerValue = (ushort)(rawBusValue);
                         }
                         datastore.HoldingRegisters[startAddress] = registerValue;
                     }
